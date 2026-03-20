@@ -64,7 +64,7 @@
   --input: oklch(0.91 0.01 255);
   --ring: oklch(0.52 0.22 255);
 
-  --radius: 1.5rem;                             /* 24px base radius */
+  --radius: 1.125rem;                           /* 18px base radius */
 }
 
 .dark {
@@ -135,14 +135,20 @@
 
   /* Standard card — 36px radius, subtle shadow */
   .ns-card {
-    @apply bg-card border border-border rounded-[36px] shadow-sm
+    background-color: #f9fcfe;
+    border: 1px solid #eff2f6;
+    @apply rounded-[18px] shadow-none
       transition-all duration-300
       hover:shadow-[0_8px_32px_0_rgba(16,24,40,0.10)] hover:-translate-y-0.5;
+  }
+  .dark .ns-card {
+    background-color: rgb(255 255 255 / 0.05);
+    border-color: rgb(255 255 255 / 0.08);
   }
 
   /* Card inner section — 28px radius */
   .ns-card-inner {
-    @apply bg-background rounded-[28px] border border-border/50;
+    @apply bg-background rounded-[12px] border border-border/50;
   }
 
   /* Primary CTA button */

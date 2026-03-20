@@ -89,7 +89,7 @@ export default async function ScholarshipsManagementPage() {
                 New Scholarship
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl rounded-[32px] glass-card border-none p-0 overflow-hidden shadow-2xl">
+            <DialogContent className="max-w-2xl rounded-[18px] glass-card border-none p-0 overflow-hidden shadow-2xl">
               <div className="p-8 bg-gradient-to-br from-primary/10 via-transparent to-transparent">
                 <DialogHeader>
                   <DialogTitle className="text-3xl font-black tracking-tight">Create Global Program</DialogTitle>

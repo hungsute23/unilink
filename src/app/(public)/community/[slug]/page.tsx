@@ -188,7 +188,7 @@ export default async function PostDetailPage({ params }: Props) {
             )}
 
             {/* Author card bottom */}
-            <div className={`mt-12 p-6 rounded-[28px] bg-gradient-to-br ${meta.gradient} border border-border/60 flex items-start gap-4`}>
+            <div className={`mt-12 p-6 rounded-[14px] bg-gradient-to-br ${meta.gradient} border border-border/60 flex items-start gap-4`}>
               <div className="w-14 h-14 rounded-full bg-background border border-border flex items-center justify-center shrink-0">
                 <RoleIcon size={22} className="text-primary" />
               </div>

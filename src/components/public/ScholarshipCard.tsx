@@ -2,7 +2,10 @@
 
 import React from "react";
 import Link from "next/link";
-import { Calendar, DollarSign, ArrowRight, BookOpen, CheckCircle2, Clock } from "lucide-react";
+import {
+  GraduationCap, Building2, Landmark, ArrowRight,
+  CheckCircle2, Clock, CalendarDays, Banknote,
+} from "lucide-react";
 import { SaveButton } from "@/components/shared/SaveButton";
 import { cn } from "@/lib/utils";
 
@@ -16,8 +19,16 @@ interface ScholarshipCardProps {
   studentId?: string;
   coversTuition?: boolean;
   coversStipend?: boolean;
+  coversDorm?: boolean;
+  duration?: string;
   className?: string;
 }
+
+const SOURCE_META: Record<string, { label: string; icon: React.ElementType; bar: string; badge: string }> = {
+  government:   { label: "Government",    icon: Landmark,    bar: "from-emerald-500 to-teal-500",    badge: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400" },
+  school_based: { label: "University",    icon: GraduationCap, bar: "from-blue-500 to-indigo-500",   badge: "bg-blue-500/10 text-blue-600 border-blue-500/20 dark:text-blue-400" },
+  private:      { label: "Private Fund",  icon: Building2,   bar: "from-violet-500 to-purple-500",   badge: "bg-violet-500/10 text-violet-600 border-violet-500/20 dark:text-violet-400" },
+};
 
 export function ScholarshipCard({
   id,
@@ -29,103 +40,105 @@ export function ScholarshipCard({
   studentId,
   coversTuition = true,
   coversStipend = false,
+  coversDorm = false,
+  duration,
   className,
 }: ScholarshipCardProps) {
+  const meta = SOURCE_META[source] ?? SOURCE_META.government;
+  const Icon = meta.icon;
+
   const deadlineDate = new Date(deadline);
   const now = new Date();
-  const isExpired = deadlineDate < now;
   const daysLeft = Math.ceil((deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  const isExpired = daysLeft < 0;
+  const isUrgent = !isExpired && daysLeft <= 30;
+
+  const deadlineLabel = isExpired
+    ? "Closed"
+    : isUrgent
+    ? `${daysLeft}d left`
+    : deadlineDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
   return (
-    <div
-      className={cn(
-        "ns-card bg-card p-6 flex flex-col gap-5",
-        isExpired && "opacity-60",
-        className
-      )}
-    >
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center justify-center">
-          <BookOpen className="w-6 h-6 text-amber-600 dark:text-amber-400" />
-        </div>
-        <SaveButton
-          variant="icon"
-          itemId={id}
-          itemType="scholarship"
-          initialIsSaved={isSaved}
-          studentId={studentId}
-          className="text-muted-foreground/40 hover:text-primary"
-        />
-      </div>
+    <div className={cn("ns-card flex flex-col overflow-hidden", isExpired && "grayscale opacity-60", className)}>
 
-      {/* Info */}
-      <div className="flex-1 space-y-2">
-        <h3 className="text-lg font-bold text-foreground leading-snug line-clamp-2">
-          {name}
-        </h3>
-        <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-          {source}
-        </p>
-      </div>
+      {/* Colour bar */}
+      <div className={`h-1 w-full bg-gradient-to-r ${meta.bar}`} />
 
-      {/* Details grid */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="ns-card-inner p-3 space-y-1">
-          <p className="text-xs text-muted-foreground font-medium">Amount</p>
-          <div className="flex items-center gap-1.5 font-bold text-foreground">
-            <DollarSign className="w-4 h-4 text-primary" />
-            <span className="text-sm">{amount || "TBA"}</span>
+      <div className="p-6 flex flex-col gap-4 flex-1">
+
+        {/* Header row */}
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2.5">
+            <div className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 ${meta.badge}`}>
+              <Icon className="w-4 h-4" />
+            </div>
+            <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${meta.badge}`}>
+              {meta.label}
+            </span>
           </div>
+          <SaveButton
+            variant="icon"
+            itemId={id}
+            itemType="scholarship"
+            initialIsSaved={isSaved}
+            studentId={studentId}
+            className="text-muted-foreground/40 hover:text-primary shrink-0"
+          />
         </div>
-        <div className="ns-card-inner p-3 space-y-1">
-          <p className="text-xs text-muted-foreground font-medium">Deadline</p>
-          <div
-            className={cn(
-              "flex items-center gap-1.5 font-bold text-sm",
-              isExpired
-                ? "text-destructive"
-                : daysLeft <= 30
-                ? "text-amber-600 dark:text-amber-400"
-                : "text-foreground"
-            )}
-          >
-            <Calendar className="w-4 h-4" />
-            {isExpired
-              ? "Closed"
-              : daysLeft <= 30
-              ? `${daysLeft}d left`
-              : deadlineDate.toLocaleDateString("en-US", { month: "short", year: "numeric" })}
-          </div>
-        </div>
-      </div>
 
-      {/* Tags */}
-      <div className="flex flex-wrap gap-2">
-        {coversTuition && (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800">
-            <CheckCircle2 className="w-3 h-3" /> Full Tuition
-          </span>
-        )}
-        {coversStipend && (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800">
-            <CheckCircle2 className="w-3 h-3" /> Stipend
-          </span>
-        )}
-      </div>
-
-      {/* Footer */}
-      <div className="flex items-center justify-between pt-4 border-t border-border/60">
-        <span className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
-          <Clock className="w-3.5 h-3.5" />
-          {isExpired ? "Expired" : `Open until ${deadlineDate.toLocaleDateString()}`}
-        </span>
-        <Link
-          href={`/scholarships/${id}`}
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
-        >
-          Apply <ArrowRight className="w-3.5 h-3.5" />
+        {/* Title */}
+        <Link href={`/scholarships/${id}`}>
+          <h3 className="text-base font-bold text-foreground leading-snug line-clamp-2 hover:text-primary transition-colors">
+            {name}
+          </h3>
         </Link>
+
+        {/* Amount */}
+        {amount && (
+          <div className="flex items-center gap-2 bg-primary/5 border border-primary/10 rounded-2xl px-4 py-2.5">
+            <Banknote className="w-4 h-4 text-primary shrink-0" />
+            <span className="text-sm font-bold text-foreground line-clamp-1">{amount}</span>
+          </div>
+        )}
+
+        {/* Coverage pills */}
+        <div className="flex flex-wrap gap-1.5">
+          {coversTuition && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 dark:text-emerald-400">
+              <CheckCircle2 className="w-3 h-3" /> Tuition
+            </span>
+          )}
+          {coversStipend && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-700 border border-blue-500/20 dark:text-blue-400">
+              <CheckCircle2 className="w-3 h-3" /> Stipend
+            </span>
+          )}
+          {coversDorm && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-700 border border-amber-500/20 dark:text-amber-400">
+              <CheckCircle2 className="w-3 h-3" /> Dorm
+            </span>
+          )}
+        </div>
+
+        <div className="flex-1" />
+
+        {/* Footer */}
+        <div className="flex items-center justify-between pt-4 border-t border-border/60">
+          <span className={cn(
+            "flex items-center gap-1.5 text-xs font-semibold",
+            isExpired ? "text-destructive" : isUrgent ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"
+          )}>
+            {isUrgent ? <Clock className="w-3.5 h-3.5" /> : <CalendarDays className="w-3.5 h-3.5" />}
+            {deadlineLabel}
+          </span>
+          <Link
+            href={`/scholarships/${id}`}
+            className="inline-flex items-center gap-1.5 text-sm font-bold text-primary hover:underline transition-colors"
+          >
+            View details <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
       </div>
     </div>
   );

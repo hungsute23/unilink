@@ -63,7 +63,7 @@ export default async function SystemConfigPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-          <div className="glass-card border-none rounded-[32px] p-8 shadow-xl">
+          <div className="glass-card border-none rounded-[18px] p-8 shadow-xl">
              <div className="flex items-center justify-between mb-8">
                 <h3 className="text-xl font-black tracking-tight flex items-center gap-2">
                   <Database className="w-5 h-5 text-primary" />
@@ -106,7 +106,7 @@ export default async function SystemConfigPage() {
         </div>
 
         <div className="space-y-8">
-          <div className="bg-rose-500 rounded-[32px] p-8 text-white relative overflow-hidden group shadow-2xl shadow-rose-500/20">
+          <div className="bg-rose-500 rounded-[18px] p-8 text-white relative overflow-hidden group shadow-2xl shadow-rose-500/20">
              <div className="relative z-10">
                 <div className="flex items-center justify-between mb-6">
                   <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-md">
@@ -120,7 +120,7 @@ export default async function SystemConfigPage() {
              <div className="absolute -right-4 -bottom-4 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700" />
           </div>
 
-          <div className="glass-card border-none rounded-[32px] p-8 shadow-xl">
+          <div className="glass-card border-none rounded-[18px] p-8 shadow-xl">
              <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest opacity-40 mb-6">
                 <Globe className="w-3 h-3" />
                 Regional Settings

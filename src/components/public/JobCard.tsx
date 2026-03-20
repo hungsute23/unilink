@@ -35,28 +35,30 @@ export function JobCard({
     !chineseRequired || chineseRequired === "none" || chineseRequired === "None";
 
   return (
-    <div className={cn("ns-card bg-card p-6 flex flex-col gap-5", className)}>
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center">
+    <div className={cn("ns-card p-6 flex flex-col gap-5", className)}>
+      {/* Header: icon left, title + company + save right */}
+      <div className="flex items-start gap-4">
+        <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0">
           <Building2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
         </div>
-        <SaveButton
-          variant="icon"
-          itemId={id}
-          itemType="job"
-          initialIsSaved={isSaved}
-          studentId={studentId}
-          className="text-muted-foreground/40 hover:text-primary"
-        />
-      </div>
-
-      {/* Info */}
-      <div className="flex-1 space-y-1.5">
-        <h3 className="text-lg font-bold text-foreground leading-snug line-clamp-2">
-          {title}
-        </h3>
-        <p className="text-sm font-semibold text-muted-foreground">{companyName}</p>
+        <div className="flex-1 min-w-0 space-y-1 pt-0.5">
+          <div className="flex items-start justify-between gap-2">
+            <Link href={`/jobs/${id}`}>
+              <h3 className="text-base font-bold text-foreground leading-snug line-clamp-2 hover:text-primary transition-colors">
+                {title}
+              </h3>
+            </Link>
+            <SaveButton
+              variant="icon"
+              itemId={id}
+              itemType="job"
+              initialIsSaved={isSaved}
+              studentId={studentId}
+              className="text-muted-foreground/40 hover:text-primary shrink-0 -mt-0.5"
+            />
+          </div>
+          <p className="text-sm font-semibold text-muted-foreground">{companyName}</p>
+        </div>
       </div>
 
       {/* Details */}

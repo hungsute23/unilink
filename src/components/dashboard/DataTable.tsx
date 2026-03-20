@@ -86,7 +86,7 @@ export function DataTable<TData, TValue>({
         </Button>
       </div>
 
-      <div className="glass-card border-none rounded-[32px] overflow-hidden shadow-xl shadow-primary/5">
+      <div className="glass-card border-none rounded-[18px] overflow-hidden shadow-xl shadow-primary/5">
         <Table>
           <TableHeader className="bg-muted/30">
             {table.getHeaderGroups().map((headerGroup: any) => (

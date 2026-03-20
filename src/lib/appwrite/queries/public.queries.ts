@@ -59,40 +59,86 @@ export async function getFeaturedJobs(limit = 6): Promise<Job[]> {
   }
 }
 
-export async function getAllSchools(filters?: { search?: string; city?: string }): Promise<School[]> {
+export async function getAllSchools(filters?: {
+  search?: string;
+  city?: string;
+  type?: string;
+}): Promise<School[]> {
   try {
     const { databases } = await createAdminClient();
-    const queries = [Query.limit(100), Query.orderDesc("$createdAt")];
+    const queries: any[] = [Query.limit(100), Query.orderDesc("$createdAt")];
     if (filters?.city) queries.push(Query.equal("city", filters.city));
     if (filters?.search) queries.push(Query.contains("schoolName", filters.search));
     const response = await databases.listDocuments(DB_ID, "Schools", queries);
-    return response.documents as unknown as School[];
-  } catch (error) {
+    let docs = response.documents as unknown as School[];
+    // client-side type filter (no Appwrite index needed)
+    if (filters?.type) {
+      const t = filters.type.toLowerCase();
+      docs = docs.filter(s => (s as any).type?.toLowerCase().includes(t));
+    }
+    return docs;
+  } catch {
     return [];
   }
 }
 
-export async function getAllScholarships(filters?: { source?: string }): Promise<Scholarship[]> {
+export async function getAllScholarships(filters?: {
+  search?: string;
+  source?: string;
+  covers?: string; // comma-separated: tuition,stipend,dorm
+}): Promise<Scholarship[]> {
   try {
     const { databases } = await createAdminClient();
-    const queries = [Query.equal("isActive", true), Query.limit(100), Query.orderDesc("$createdAt")];
+    const queries: any[] = [Query.equal("isActive", true), Query.limit(100), Query.orderDesc("$createdAt")];
     if (filters?.source) queries.push(Query.equal("source", filters.source));
     const response = await databases.listDocuments(DB_ID, "Scholarships", queries);
-    return response.documents as unknown as Scholarship[];
-  } catch (error) {
+    let docs = response.documents as unknown as Scholarship[];
+    if (filters?.search) {
+      const q = filters.search.toLowerCase();
+      docs = docs.filter(s => s.name.toLowerCase().includes(q));
+    }
+    if (filters?.covers) {
+      const coverList = filters.covers.split(",");
+      docs = docs.filter(s =>
+        coverList.every(c =>
+          (c === "tuition" && s.coversTuition) ||
+          (c === "stipend" && s.coversStipend) ||
+          (c === "dorm"    && s.coversDorm)
+        )
+      );
+    }
+    return docs;
+  } catch {
     return [];
   }
 }
 
-export async function getAllJobs(filters?: { type?: string; allowsVisa?: boolean }): Promise<Job[]> {
+export async function getAllJobs(filters?: {
+  search?: string;
+  type?: string;
+  allowsVisa?: boolean;
+  chinese?: string;
+  city?: string;
+}): Promise<Job[]> {
   try {
     const { databases } = await createAdminClient();
-    const queries = [Query.equal("isActive", true), Query.limit(100), Query.orderDesc("$createdAt")];
+    const queries: any[] = [Query.equal("isActive", true), Query.limit(100), Query.orderDesc("$createdAt")];
     if (filters?.type) queries.push(Query.equal("jobType", filters.type));
     if (filters?.allowsVisa) queries.push(Query.equal("allowsStudentVisa", true));
     const response = await databases.listDocuments(DB_ID, "Jobs", queries);
-    return response.documents as unknown as Job[];
-  } catch (error) {
+    let docs = response.documents as unknown as Job[];
+    if (filters?.search) {
+      const q = filters.search.toLowerCase();
+      docs = docs.filter(j => j.title.toLowerCase().includes(q));
+    }
+    if (filters?.chinese) {
+      docs = docs.filter(j => (j.chineseRequired ?? "none").toLowerCase() === filters.chinese!.toLowerCase());
+    }
+    if (filters?.city) {
+      docs = docs.filter(j => j.location?.toLowerCase().includes(filters.city!.toLowerCase()));
+    }
+    return docs;
+  } catch {
     return [];
   }
 }

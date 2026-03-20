@@ -78,7 +78,7 @@ export default async function JobDetailPage({ params }: Props) {
   }
 
   const isExpired = new Date(job.deadline) < new Date();
-  const days = daysUntil(job.deadline);
+  const days = daysUntil(String(job.deadline));
   const typeStyle = JOB_TYPE_STYLES[job.jobType] ?? JOB_TYPE_STYLES["Full-time"];
 
   // Split requirements into sections (looks for lines starting with common headers)
@@ -321,7 +321,7 @@ export default async function JobDetailPage({ params }: Props) {
 
                   <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 dark:bg-amber-900/20 dark:border-amber-800 text-center">
                     <p className="text-xs font-semibold text-amber-700 dark:text-amber-400">
-                      Deadline: {formatDate(job.deadline)}
+                      Deadline: {formatDate(String(job.deadline))}
                       {days > 0 && days <= 30 && <span className="ml-1">({days} days left)</span>}
                     </p>
                   </div>
@@ -346,7 +346,7 @@ export default async function JobDetailPage({ params }: Props) {
                     <CalendarDays size={20} className="text-muted-foreground" />
                   </div>
                   <p className="font-semibold text-foreground">Applications Closed</p>
-                  <p className="text-xs text-muted-foreground">This position closed on {formatDate(job.deadline)}</p>
+                  <p className="text-xs text-muted-foreground">This position closed on {formatDate(String(job.deadline))}</p>
                   <SaveButton
                     studentId={account?.$id}
                     itemId={job.$id}

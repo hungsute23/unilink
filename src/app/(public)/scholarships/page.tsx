@@ -4,28 +4,41 @@ import { getLoggedInUser } from "@/lib/appwrite/queries/auth.queries";
 import { getSavedItems } from "@/lib/appwrite/queries/student.queries";
 import { ScholarshipCard } from "@/components/public/ScholarshipCard";
 import { FilterSidebar } from "@/components/public/FilterSidebar";
-import { Banknote, Sparkles } from "lucide-react";
+import { MobileFilterDrawer } from "@/components/public/MobileFilterDrawer";
+import { Pagination } from "@/components/public/Pagination";
+import { Sparkles } from "lucide-react";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Scholarships in Taiwan",
   description: "Discover the latest full and partial scholarships from the Taiwan Government (MOE, ICDF) and universities.",
 };
 
+const PER_PAGE = 6;
+
 export default async function ScholarshipsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ source?: string }>;
+  searchParams: Promise<{ q?: string; source?: string; covers?: string; page?: string }>;
 }) {
   const resolvedParams = await searchParams;
+  const page = Math.max(1, parseInt(resolvedParams.page ?? "1", 10));
   const user = await getLoggedInUser();
 
   const [scholarshipsRaw, savedItems] = await Promise.all([
-    getAllScholarships({ source: resolvedParams.source }),
+    getAllScholarships({
+      search: resolvedParams.q,
+      source: resolvedParams.source,
+      covers: resolvedParams.covers,
+    }),
     user ? getSavedItems(user.$id) : Promise.resolve([])
   ]);
 
   const scholarships = scholarshipsRaw.map(s => JSON.parse(JSON.stringify(s)));
   const savedItemIds = new Set(savedItems.map(i => i.itemId));
+
+  const totalPages = Math.ceil(scholarships.length / PER_PAGE);
+  const paged = scholarships.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
   return (
     <div className="min-h-screen bg-background pb-32">
@@ -44,22 +57,21 @@ export default async function ScholarshipsPage({
         </div>
 
         <div className="flex flex-col lg:flex-row gap-12">
-          {/* Sidebar */}
-          <FilterSidebar type="scholarships" className="hidden lg:block shrink-0" />
+          <Suspense><FilterSidebar type="scholarships" className="hidden lg:block shrink-0" /></Suspense>
 
-          {/* Results Grid */}
           <div className="flex-1 space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
             <div className="flex items-center justify-between border-b border-primary/5 pb-4">
               <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                 <span className="text-amber-500">{scholarships.length}</span> Active Programs
               </p>
+              <Suspense><MobileFilterDrawer type="scholarships" /></Suspense>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {scholarships.length > 0 ? (
-                scholarships.map((scholarship) => (
-                  <ScholarshipCard 
-                    key={scholarship.$id} 
+              {paged.length > 0 ? (
+                paged.map((scholarship) => (
+                  <ScholarshipCard
+                    key={scholarship.$id}
                     id={scholarship.$id}
                     name={scholarship.name}
                     source={scholarship.source}
@@ -69,15 +81,23 @@ export default async function ScholarshipsPage({
                     studentId={user?.$id}
                     coversTuition={scholarship.coversTuition}
                     coversStipend={scholarship.coversStipend}
+                    coversDorm={scholarship.coversDorm}
+                    duration={scholarship.duration}
                   />
                 ))
               ) : (
-                <div className="col-span-full py-32 text-center text-muted-foreground glass-card border-none rounded-[32px]">
+                <div className="col-span-full py-32 text-center text-muted-foreground glass-card border-none rounded-[18px]">
                   <p className="text-lg font-bold uppercase tracking-widest italic opacity-40">No Funding Records</p>
                   <p className="text-xs font-medium mt-2">No programs match your current filtration parameters.</p>
                 </div>
               )}
             </div>
+
+            {totalPages > 1 && (
+              <Suspense>
+                <Pagination currentPage={page} totalPages={totalPages} />
+              </Suspense>
+            )}
           </div>
         </div>
       </div>

@@ -3,39 +3,15 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
-  LogOut, 
-  ChevronRight, 
-  Search,
-  LayoutDashboard,
-  Settings,
-  Bell,
-  Menu,
-  X,
-  CreditCard,
-  User as UserIcon,
-  FileText,
-  Bookmark,
-  UserCog,
-  GraduationCap,
-  Building2,
-  Users,
-  ShieldCheck,
-  Settings2,
-  ListTodo,
-  Sparkles,
-  BookOpen,
-  Briefcase,
-  History,
-  CheckCircle,
-  FileBadge,
-  BarChart3,
-  CalendarDays,
-  Award,
-  School
+import {
+  LogOut, ChevronLeft, ChevronRight,
+  LayoutDashboard, Settings, FileText, Bookmark,
+  UserCog, GraduationCap, Building2, Users, ShieldCheck,
+  Settings2, ListTodo, BookOpen, Briefcase, History,
+  CheckCircle, FileBadge, BarChart3, CalendarDays, Award,
+  School, PenSquare, User as UserIcon, Sparkles, CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { logoutUser } from "@/lib/appwrite/actions/auth.actions";
 import { toast } from "sonner";
 
@@ -47,166 +23,132 @@ export interface NavItem {
 }
 
 const IconMap: Record<string, React.ElementType> = {
-  LayoutDashboard,
-  FileText,
-  Bookmark,
-  UserCog,
-  GraduationCap,
-  Building2,
-  Users,
-  ShieldCheck,
-  Settings2,
-  ListTodo,
-  Sparkles,
-  Settings,
-  BookOpen,
-  Briefcase,
-  History,
-  CreditCard,
-  CheckCircle,
-  FileBadge,
-  UserIcon,
-  BarChart3,
-  CalendarDays,
-  Award,
-  School
+  LayoutDashboard, FileText, Bookmark, UserCog, GraduationCap,
+  Building2, Users, ShieldCheck, Settings2, ListTodo, Sparkles,
+  Settings, BookOpen, Briefcase, History, CreditCard, CheckCircle,
+  FileBadge, UserIcon, BarChart3, CalendarDays, Award, School, PenSquare,
+};
+
+const PORTAL_ACCENT: Record<string, string> = {
+  "Admin":    "bg-rose-500",
+  "School":   "bg-violet-500",
+  "Student":  "bg-indigo-500",
+  "Business": "bg-emerald-500",
 };
 
 interface SidebarProps {
   navItems: NavItem[];
-  user: {
-    name: string;
-    email: string;
-    avatarUrl?: string;
-  } | null;
+  user: { name: string; email: string; avatarUrl?: string } | null;
   portalName: string;
   className?: string;
 }
 
 export function Sidebar({ navItems, user, portalName, className }: SidebarProps) {
   const pathname = usePathname();
-  const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const [collapsed, setCollapsed] = React.useState(false);
+
+  const accentClass = PORTAL_ACCENT[portalName] ?? "bg-indigo-500";
+  const initials = user?.name?.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase() ?? "?";
 
   const handleLogout = async () => {
     try {
       await logoutUser();
       window.location.href = "/login";
-      toast.success("Successfully logged out");
-    } catch (error) {
+    } catch {
       toast.error("Logout failed");
     }
   };
 
   return (
-    <aside className={cn(
-      "h-screen sticky top-0 bg-background/50 backdrop-blur-3xl border-r border-primary/5 flex flex-col transition-all duration-500 z-50",
-      isCollapsed ? "w-24" : "w-72",
-      className
-    )}>
-      {/* Brand Logo & Toggle */}
-      <div className="p-8 flex items-center justify-between">
-        {!isCollapsed && (
-          <div className="flex items-center gap-3 animate-in fade-in slide-in-from-left duration-500">
-            <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center shadow-xl shadow-primary/20">
-              <span className="text-white font-black text-xl italic uppercase">UL</span>
-            </div>
-            <div>
-              <p className="font-black text-sm tracking-tighter uppercase italic leading-none">UniLink</p>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 mt-0.5">{portalName}</p>
-            </div>
+    <aside
+      className={cn(
+        "h-screen sticky top-0 flex flex-col transition-all duration-300 z-50 shrink-0",
+        "bg-[#13152b] border-r border-white/[0.06]",
+        collapsed ? "w-[68px]" : "w-[240px]",
+        className
+      )}
+    >
+      {/* Logo */}
+      <div className="flex items-center gap-3 px-4 h-[60px] border-b border-white/[0.06] shrink-0">
+        <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-white font-black text-sm", accentClass)}>
+          UL
+        </div>
+        {!collapsed && (
+          <div className="min-w-0 animate-in fade-in duration-200">
+            <p className="text-white font-bold text-sm leading-none">UniLink</p>
+            <p className="text-white/40 text-[10px] font-medium mt-0.5">{portalName} Portal</p>
           </div>
-        )}
-        {isCollapsed && (
-           <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center shadow-xl shadow-primary/20 mx-auto">
-              <span className="text-white font-black text-xl italic uppercase font-outline-2">U</span>
-           </div>
         )}
       </div>
 
-      {/* Navigation List */}
-      <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto scrollbar-hide">
+      {/* Nav */}
+      <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-0.5 scrollbar-hide">
         {navItems.map((item) => {
-          const Icon = IconMap[item.icon] || UserIcon;
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+          const Icon = IconMap[item.icon] ?? LayoutDashboard;
+          const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href + "/"));
           return (
             <Link
               key={item.href}
               href={item.href}
+              title={collapsed ? item.label : undefined}
               className={cn(
-                "group relative flex items-center gap-4 p-4 rounded-2xl transition-all duration-300",
-                isActive 
-                  ? "bg-primary text-white shadow-xl shadow-primary/20" 
-                  : "hover:bg-primary/5 text-muted-foreground hover:text-primary",
-                isCollapsed && "justify-center px-0"
+                "flex items-center gap-3 px-3 h-10 rounded-lg text-sm font-medium transition-all duration-150 group relative",
+                isActive
+                  ? "bg-indigo-500/15 text-white"
+                  : "text-white/40 hover:text-white/80 hover:bg-white/[0.05]"
               )}
             >
-              <Icon className={cn("w-5 h-5", isActive ? "" : "opacity-60 group-hover:opacity-100")} />
-              
-              {!isCollapsed && (
-                <span className="font-black text-xs uppercase tracking-widest animate-in fade-in slide-in-from-left duration-500">
-                  {item.label}
+              {isActive && (
+                <span className="absolute left-0 top-2 bottom-2 w-0.5 rounded-full bg-indigo-400" />
+              )}
+              <Icon className={cn("shrink-0 w-4 h-4", collapsed && "mx-auto")} />
+              {!collapsed && (
+                <span className="truncate animate-in fade-in duration-200">{item.label}</span>
+              )}
+              {!collapsed && item.badge != null && (
+                <span className="ml-auto text-[10px] font-bold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded-full">
+                  {item.badge}
                 </span>
-              )}
-
-              {!isCollapsed && isActive && (
-                <div className="absolute right-4 w-1.5 h-1.5 rounded-full bg-white shadow-lg shadow-white/50" />
-              )}
-
-              {isCollapsed && (
-                <div className="absolute left-full ml-4 px-3 py-1.5 rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100] shadow-2xl">
-                   {item.label}
-                </div>
               )}
             </Link>
           );
         })}
       </nav>
 
-      {/* User Actions & Profile */}
-      <div className="p-6 border-t border-primary/5 bg-primary/[0.02]">
-        <div className={cn(
-          "flex flex-col gap-4",
-          isCollapsed ? "items-center" : ""
-        )}>
-          {!isCollapsed && (
-            <div className="flex items-center gap-3 p-2 rounded-2xl bg-background/50 shadow-sm animate-in fade-in slide-in-from-bottom duration-500">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                 <UserIcon className="w-5 h-5 text-primary" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-black tracking-tight truncate uppercase italic">{user?.name || "Guest"}</p>
-                <p className="text-[9px] font-bold text-muted-foreground opacity-50 truncate uppercase tracking-tighter">Premium Agent</p>
-              </div>
+      {/* User + Logout */}
+      <div className="border-t border-white/[0.06] p-3 space-y-1 shrink-0">
+        {!collapsed && user && (
+          <div className="flex items-center gap-2.5 px-2 py-2 mb-1">
+            <div className={cn("w-7 h-7 rounded-lg flex items-center justify-center text-white text-[10px] font-bold shrink-0", accentClass)}>
+              {initials}
             </div>
-          )}
-
-          <div className={cn(
-            "flex items-center gap-2",
-            isCollapsed ? "flex-col" : "justify-between"
-          )}>
-            <Button 
-               variant="ghost" 
-               size="sm" 
-               onClick={() => setIsCollapsed(!isCollapsed)}
-               className="h-10 w-10 p-0 rounded-xl hover:bg-primary/5"
-            >
-              {isCollapsed ? <Menu className="w-4 h-4" /> : <X className="w-4 h-4" />}
-            </Button>
-            
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={handleLogout}
-              className={cn(
-                "h-10 rounded-xl hover:bg-rose-500/10 hover:text-rose-500 transition-colors",
-                isCollapsed ? "w-10 p-0" : "flex-1 justify-center gap-2 px-4"
-              )}
-            >
-              <LogOut className="w-4 h-4" />
-              {!isCollapsed && <span className="text-[10px] font-black uppercase tracking-widest">Sign Out</span>}
-            </Button>
+            <div className="min-w-0">
+              <p className="text-white/90 text-xs font-semibold truncate leading-none">{user.name}</p>
+              <p className="text-white/30 text-[10px] truncate mt-0.5">{user.email}</p>
+            </div>
           </div>
-        </div>
+        )}
+
+        <button
+          onClick={handleLogout}
+          className={cn(
+            "flex items-center gap-3 w-full px-3 h-9 rounded-lg text-white/40 hover:text-rose-400 hover:bg-rose-500/10 transition-all duration-150 text-sm font-medium",
+            collapsed && "justify-center"
+          )}
+        >
+          <LogOut className="w-4 h-4 shrink-0" />
+          {!collapsed && <span>Sign out</span>}
+        </button>
+
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="flex items-center gap-3 w-full px-3 h-9 rounded-lg text-white/20 hover:text-white/60 hover:bg-white/[0.04] transition-all duration-150 text-sm"
+        >
+          {collapsed
+            ? <ChevronRight className="w-4 h-4 mx-auto" />
+            : <><ChevronLeft className="w-4 h-4" /><span className="text-[11px]">Collapse</span></>
+          }
+        </button>
       </div>
     </aside>
   );

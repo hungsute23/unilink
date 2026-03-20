@@ -24,6 +24,7 @@ export default function SeedPage() {
   const [complete, setComplete] = React.useState(false);
   const [completeContent, setCompleteContent] = React.useState(false);
   const [completeReset, setCompleteReset] = React.useState(false);
+  const [lastResult, setLastResult] = React.useState<{ ok: boolean; msg: string } | null>(null);
 
   const handleSeed = async () => {
     setLoading(true);
@@ -62,18 +63,19 @@ export default function SeedPage() {
   const handleReset = async () => {
     if (!confirm("⚠️ This will DELETE all data and re-seed from scratch. Continue?")) return;
     setLoadingReset(true);
+    setLastResult(null);
     try {
       const result = await resetAndSeed();
       if (result.success) {
-        toast.success("Full reset & re-seed complete!");
+        setLastResult({ ok: true, msg: "✅ Full reset & re-seed complete!" });
         setCompleteReset(true);
         setComplete(true);
         setCompleteContent(true);
       } else {
-        toast.error(`Reset failed: ${result.error}`);
+        setLastResult({ ok: false, msg: `❌ Failed: ${result.error}` });
       }
     } catch (error: any) {
-      toast.error(`Reset error: ${error?.message ?? String(error)}`, { duration: 10000 });
+      setLastResult({ ok: false, msg: `❌ Exception: ${error?.message ?? String(error)}` });
     } finally {
       setLoadingReset(false);
     }
@@ -190,6 +192,12 @@ export default function SeedPage() {
               </Link>
             )}
           </div>
+
+          {lastResult && (
+            <div className={`p-4 rounded-2xl border text-xs font-mono break-all leading-relaxed ${lastResult.ok ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-600" : "bg-red-500/10 border-red-500/30 text-red-600"}`}>
+              {lastResult.msg}
+            </div>
+          )}
 
           <div className="flex items-center justify-center gap-2 text-[10px] font-black uppercase text-muted-foreground/40 cursor-not-allowed">
             <Lock className="w-3 h-3" />

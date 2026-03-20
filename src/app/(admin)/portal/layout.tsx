@@ -41,20 +41,18 @@ export default async function AdminLayout({
   };
 
   return (
-    <div className="flex min-h-svh bg-background/50">
-      <Sidebar 
-        navItems={adminNavItems} 
+    <div className="flex min-h-svh bg-[#f0f2f8] dark:bg-[#0d0f1c]">
+      <Sidebar
+        navItems={adminNavItems}
         user={userData}
-        portalName="Super Admin" 
+        portalName="Admin"
       />
-      
+
       <div className="flex flex-1 flex-col overflow-hidden">
-        <main className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-primary/10 scrollbar-track-transparent bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent">
-           <div className="p-8 pb-20 max-w-[1600px] mx-auto">
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
-                {children}
-              </div>
-           </div>
+        <main className="flex-1 overflow-y-auto">
+          <div className="p-6 max-w-[1400px] mx-auto">
+            {children}
+          </div>
         </main>
       </div>
     </div>

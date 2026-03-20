@@ -1,100 +1,195 @@
 import type { Metadata } from "next";
 import { getLoggedInUser } from "@/lib/appwrite/queries/auth.queries";
-import { getSchoolProfile } from "@/lib/appwrite/queries/school.queries";
+import {
+  getSchoolProfile,
+  getAdmissionTerms,
+  getSchoolPrograms,
+  getSchoolScholarships,
+  getSchoolApplications,
+} from "@/lib/appwrite/queries/school.queries";
 import { redirect } from "next/navigation";
-import { SchoolProfileForm } from "@/components/school/SchoolProfileForm";
+import Link from "next/link";
 import { PageHeader } from "@/components/dashboard/PageHeader";
-import { GlassCard } from "@/components/shared/GlassCard";
-import { 
-  BarChart3, 
-  Users, 
-  GraduationCap, 
-  BookOpen, 
-  HelpCircle 
+import {
+  Users, BookOpen, Award, CalendarDays,
+  GraduationCap, ArrowRight, CheckCircle2,
+  Clock, Building2, UserCheck, XCircle,
 } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "School Profile",
-  description: "Monitor international student applications and manage institutional scholarship programs.",
-};
+export const metadata: Metadata = { title: "Overview | School Portal" };
+
+function StatCard({ label, value, icon: Icon, color }: { label: string; value: number | string; icon: any; color: string }) {
+  return (
+    <div className="bg-white dark:bg-white/5 rounded-2xl p-5 border border-gray-100 dark:border-white/10 flex items-center gap-4">
+      <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
+        <Icon className="w-5 h-5" />
+      </div>
+      <div>
+        <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">{label}</p>
+      </div>
+    </div>
+  );
+}
+
+function QuickAction({ href, icon: Icon, label, desc, color }: { href: string; icon: any; label: string; desc: string; color: string }) {
+  return (
+    <Link href={href} className="bg-white dark:bg-white/5 rounded-2xl p-5 border border-gray-100 dark:border-white/10 hover:border-violet-200 dark:hover:border-violet-500/40 hover:shadow-sm transition-all group flex items-center gap-4">
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
+        <Icon className="w-5 h-5" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-gray-800 dark:text-white">{label}</p>
+        <p className="text-xs text-gray-400 mt-0.5">{desc}</p>
+      </div>
+      <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-violet-500 group-hover:translate-x-0.5 transition-all" />
+    </Link>
+  );
+}
 
 export default async function SchoolPortalPage() {
   const user = await getLoggedInUser();
   if (!user) redirect("/login");
 
   const school = await getSchoolProfile(user.$id);
-  
+
   if (!school) {
     return (
-      <div className="flex flex-col items-center justify-center p-20 text-center glass-card border-dashed">
-        <div className="w-20 h-20 bg-muted/50 rounded-3xl flex items-center justify-center mb-6">
-          <GraduationCap className="w-10 h-10 text-muted-foreground" />
+      <div className="flex flex-col items-center justify-center py-24 text-center">
+        <div className="w-16 h-16 bg-gray-100 dark:bg-white/10 rounded-2xl flex items-center justify-center mb-4">
+          <GraduationCap className="w-8 h-8 text-gray-400" />
         </div>
-        <h2 className="text-2xl font-black">No School Profile Found</h2>
-        <p className="text-muted-foreground max-w-sm mt-3 font-medium opacity-70">
-          Your account is not linked to any school profile yet. 
-          Please contact our support team to get started.
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white">No School Profile Found</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm mt-2">
+          Your account is not linked to any school profile yet. Contact our support team to get started.
         </p>
       </div>
     );
   }
 
-  const stats = [
-    { label: "Total Applicants", value: "0", icon: Users, color: "text-blue-500", bg: "bg-blue-500/10" },
-    { label: "Active Programs", value: "0", icon: BookOpen, color: "text-indigo-500", bg: "bg-indigo-500/10" },
-    { label: "Overview Insights", value: "Live", icon: BarChart3, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-  ];
+  const [terms, programs, scholarships, applications] = await Promise.all([
+    getAdmissionTerms(school.$id),
+    getSchoolPrograms(school.$id),
+    getSchoolScholarships(school.$id),
+    getSchoolApplications(school.$id),
+  ]);
+
+  const pendingApps  = applications.filter((a: any) => a.status === "pending").length;
+  const acceptedApps = applications.filter((a: any) => a.status === "accepted").length;
+  const rejectedApps = applications.filter((a: any) => a.status === "rejected").length;
+
+  const activeTerms = terms.filter((t: any) => {
+    const end = new Date(t.applyEndDate);
+    return end >= new Date();
+  });
 
   return (
-    <div className="space-y-12">
-      <PageHeader 
-        title="Institutional Profile" 
-        description="Manage your university details, recruitment status, and brand identity on UniLink."
-      />
-
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
-        <div className="xl:col-span-2">
-           <GlassCard className="p-10">
-              <SchoolProfileForm school={{ ...school }} />
-           </GlassCard>
+    <div className="space-y-6">
+      {/* Welcome banner */}
+      <div className="bg-gradient-to-r from-violet-600 to-violet-500 rounded-2xl p-6 text-white flex items-center justify-between">
+        <div>
+          <p className="text-violet-200 text-sm font-medium">School Portal</p>
+          <h2 className="text-2xl font-bold mt-0.5">{school.schoolName}</h2>
+          <p className="text-violet-200 text-sm mt-1">
+            {applications.length > 0
+              ? `${pendingApps} pending application${pendingApps !== 1 ? "s" : ""} awaiting review`
+              : "No applications yet — keep your profile up to date"}
+          </p>
         </div>
-
-        <div className="space-y-8">
-          <GlassCard className="p-8 space-y-6" gradient>
-            <h3 className="font-black text-xl flex items-center gap-3">
-              <BarChart3 className="w-6 h-6 text-primary" />
-              Quick Statistics
-            </h3>
-            <div className="space-y-4">
-              {stats.map((stat) => (
-                <div key={stat.label} className="p-5 rounded-2xl border border-white/10 glass flex justify-between items-center transition-all hover:border-primary/30 group">
-                  <div className="flex items-center gap-4">
-                    <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110", stat.bg)}>
-                      <stat.icon className={cn("w-5 h-5", stat.color)} />
-                    </div>
-                    <span className="text-sm font-black text-muted-foreground uppercase tracking-widest opacity-70">{stat.label}</span>
-                  </div>
-                  <span className="text-xl font-black">{stat.value}</span>
-                </div>
-              ))}
-            </div>
-          </GlassCard>
-          
-          <GlassCard className="p-8 vibrant-gradient text-white">
-             <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center mb-6">
-                <HelpCircle className="w-6 h-6" />
-             </div>
-             <h3 className="text-xl font-bold mb-3">Optimize for Visibility</h3>
-             <p className="text-sm text-white/80 leading-relaxed font-medium">
-               High-quality logos and detailed descriptions increase student engagement by up to 45%. 
-               Keep your profile rich and accurate.
-             </p>
-          </GlassCard>
+        <div className="hidden sm:flex w-16 h-16 rounded-2xl bg-white/10 items-center justify-center">
+          <Building2 className="w-8 h-8 text-white" />
         </div>
       </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard label="Total Applications" value={applications.length} icon={Users}       color="bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400" />
+        <StatCard label="Active Programs"    value={programs.length}     icon={BookOpen}    color="bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400" />
+        <StatCard label="Scholarships"       value={scholarships.length} icon={Award}       color="bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400" />
+        <StatCard label="Open Terms"         value={activeTerms.length}  icon={CalendarDays}color="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Quick actions */}
+        <div className="lg:col-span-2 space-y-3">
+          <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Manage</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <QuickAction href="/school-portal/applications" icon={Users}        label="Review Applications"  desc={`${pendingApps} pending review`}                          color="bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400" />
+            <QuickAction href="/school-portal/programs"     icon={BookOpen}     label="Manage Programs"      desc={`${programs.length} program${programs.length !== 1 ? "s" : ""} listed`}     color="bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400" />
+            <QuickAction href="/school-portal/scholarships" icon={Award}        label="Scholarships"         desc={`${scholarships.length} scholarship${scholarships.length !== 1 ? "s" : ""} active`} color="bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400" />
+            <QuickAction href="/school-portal/terms"        icon={CalendarDays} label="Admission Terms"      desc={`${activeTerms.length} open term${activeTerms.length !== 1 ? "s" : ""}`}           color="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" />
+          </div>
+        </div>
+
+        {/* Application status breakdown */}
+        <div className="bg-white dark:bg-white/5 rounded-2xl p-5 border border-gray-100 dark:border-white/10 space-y-4">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Application Status</h3>
+          <div className="space-y-3">
+            {[
+              { label: "Pending",     count: pendingApps,  icon: Clock,        color: "text-amber-500",  bg: "bg-amber-50 dark:bg-amber-500/10" },
+              { label: "Accepted",    count: acceptedApps, icon: UserCheck,    color: "text-emerald-500",bg: "bg-emerald-50 dark:bg-emerald-500/10" },
+              { label: "Rejected",    count: rejectedApps, icon: XCircle,      color: "text-red-500",    bg: "bg-red-50 dark:bg-red-500/10" },
+            ].map(item => (
+              <div key={item.label} className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${item.bg}`}>
+                    <item.icon className={`w-3.5 h-3.5 ${item.color}`} />
+                  </div>
+                  <span className="text-sm text-gray-600 dark:text-gray-300">{item.label}</span>
+                </div>
+                <span className="text-sm font-bold text-gray-900 dark:text-white">{item.count}</span>
+              </div>
+            ))}
+          </div>
+
+          {applications.length > 0 && (
+            <div className="pt-2 border-t border-gray-100 dark:border-white/10">
+              <div className="flex gap-1 h-2 rounded-full overflow-hidden">
+                <div className="bg-amber-400"   style={{ width: `${applications.length ? (pendingApps  / applications.length) * 100 : 0}%` }} />
+                <div className="bg-emerald-400" style={{ width: `${applications.length ? (acceptedApps / applications.length) * 100 : 0}%` }} />
+                <div className="bg-red-400"     style={{ width: `${applications.length ? (rejectedApps / applications.length) * 100 : 0}%` }} />
+              </div>
+            </div>
+          )}
+
+          <Link href="/school-portal/applications" className="flex items-center gap-2 text-xs font-semibold text-violet-600 dark:text-violet-400 hover:underline">
+            View all applications <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+      </div>
+
+      {/* Recent applications */}
+      {applications.length > 0 && (
+        <div className="bg-white dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/10 overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-white/10">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Recent Applications</h3>
+            <Link href="/school-portal/applications" className="text-xs text-violet-600 dark:text-violet-400 font-medium hover:underline">View all</Link>
+          </div>
+          <div className="divide-y divide-gray-50 dark:divide-white/5">
+            {applications.slice(0, 5).map((app: any) => (
+              <div key={app.$id} className="flex items-center justify-between px-5 py-3.5">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-violet-50 dark:bg-violet-500/10 flex items-center justify-center">
+                    <Users className="w-3.5 h-3.5 text-violet-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-800 dark:text-white capitalize">{app.targetType} application</p>
+                    <p className="text-xs text-gray-400">{new Date(app.$createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
+                  </div>
+                </div>
+                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                  app.status === "accepted"     ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
+                  : app.status === "rejected"   ? "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
+                  : app.status === "under_review"? "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
+                  : "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400"
+                }`}>
+                  {app.status === "under_review" ? "Under Review" : app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-// Helper to keep the code clean
-import { cn } from "@/lib/utils";

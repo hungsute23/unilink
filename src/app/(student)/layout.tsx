@@ -12,11 +12,11 @@ export const metadata: Metadata = {
 };
 
 const studentNavItems: NavItem[] = [
-  { label: "Overview", href: "/student-portal", icon: "LayoutDashboard" },
-  { label: "My Applications", href: "/student-portal/applications", icon: "FileText" },
-  { label: "Saved Items", href: "/student-portal/saved", icon: "Bookmark" },
-  { label: "Community Posts", href: "/student-portal/community", icon: "PenSquare" },
-  { label: "Profile Settings", href: "/student-portal/profile", icon: "UserCog" },
+  { label: "Overview",          href: "/student-portal",              icon: "LayoutDashboard" },
+  { label: "Applications",      href: "/student-portal/applications", icon: "FileText" },
+  { label: "Saved Items",       href: "/student-portal/saved",        icon: "Bookmark" },
+  { label: "Community Posts",   href: "/student-portal/community",    icon: "PenSquare" },
+  { label: "Profile",           href: "/student-portal/profile",      icon: "UserCog" },
 ];
 
 export default async function StudentPortalLayout({
@@ -31,22 +31,22 @@ export default async function StudentPortalLayout({
   };
 
   return (
-    <div className="flex min-h-svh bg-background/50">
+    <div className="flex min-h-svh bg-[#f0f2f8] dark:bg-[#0d0f1c]">
       <DashboardSidebar 
         navItems={studentNavItems} 
         user={{ fullName: user.name, email: user.email }}
-        portalName="Student Portal" 
+        portalName="Student"
       />
       
       <div className="flex flex-1 flex-col overflow-hidden">
-        <main className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-primary/10 scrollbar-track-transparent bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent">
-           <div className="p-8 pb-20 max-w-[1600px] mx-auto">
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
-                <Suspense fallback={<div className="p-8 text-center text-muted-foreground">Loading intelligence...</div>}>
-                  {children}
-                </Suspense>
-              </div>
-           </div>
+        <main className="flex-1 overflow-y-auto">
+          <div className="p-6 max-w-[1400px] mx-auto">
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-64 text-gray-400 text-sm">Loading...</div>
+            }>
+              {children}
+            </Suspense>
+          </div>
         </main>
       </div>
     </div>

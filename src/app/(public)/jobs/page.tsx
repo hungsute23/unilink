@@ -4,7 +4,10 @@ import { getLoggedInUser } from "@/lib/appwrite/queries/auth.queries";
 import { getSavedItems } from "@/lib/appwrite/queries/student.queries";
 import { JobCard } from "@/components/public/JobCard";
 import { FilterSidebar } from "@/components/public/FilterSidebar";
-import { Briefcase, Zap } from "lucide-react";
+import { MobileFilterDrawer } from "@/components/public/MobileFilterDrawer";
+import { Pagination } from "@/components/public/Pagination";
+import { Zap } from "lucide-react";
+import { Suspense } from "react";
 import { createAdminClient } from "@/lib/appwrite/server";
 import { Query } from "node-appwrite";
 
@@ -13,18 +16,24 @@ export const metadata: Metadata = {
   description: "Find part-time and full-time jobs that support international students in Taiwan. Safe opportunities with good income and work permit support.",
 };
 
+const PER_PAGE = 6;
+
 export default async function JobsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string; visa?: string }>;
+  searchParams: Promise<{ q?: string; type?: string; visa?: string; chinese?: string; city?: string; page?: string }>;
 }) {
   const resolvedParams = await searchParams;
+  const page = Math.max(1, parseInt(resolvedParams.page ?? "1", 10));
   const user = await getLoggedInUser();
 
   const [jobsRaw, savedItems] = await Promise.all([
     getAllJobs({
-       type: resolvedParams.type,
-       allowsVisa: resolvedParams.visa === "true" || undefined
+      search: resolvedParams.q,
+      type: resolvedParams.type,
+      allowsVisa: resolvedParams.visa === "true" || undefined,
+      chinese: resolvedParams.chinese,
+      city: resolvedParams.city,
     }),
     user ? getSavedItems(user.$id) : Promise.resolve([])
   ]);
@@ -36,11 +45,11 @@ export default async function JobsPage({
   const businessIds = Array.from(new Set(jobsData.map(j => j.businessId)));
   const { databases: adminDb } = await createAdminClient();
   const dbId = process.env.APPWRITE_DATABASE_ID!;
-  
-  const businessesResp = businessIds.length > 0 
-    ? await adminDb.listDocuments(dbId, "Businesses", [Query.equal("$id", businessIds)]) 
+
+  const businessesResp = businessIds.length > 0
+    ? await adminDb.listDocuments(dbId, "Businesses", [Query.equal("$id", businessIds)])
     : { documents: [] };
-  
+
   const businessMap: Record<string, string> = {};
   businessesResp.documents.forEach((b: any) => {
     businessMap[b.$id] = b.companyName;
@@ -50,6 +59,9 @@ export default async function JobsPage({
     ...j,
     companyName: businessMap[j.businessId] || "Partner Business"
   }));
+
+  const totalPages = Math.ceil(jobs.length / PER_PAGE);
+  const paged = jobs.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
   return (
     <div className="min-h-screen bg-background pb-32">
@@ -68,22 +80,21 @@ export default async function JobsPage({
         </div>
 
         <div className="flex flex-col lg:flex-row gap-12">
-          {/* Sidebar */}
-          <FilterSidebar type="jobs" className="hidden lg:block shrink-0" />
+          <Suspense><FilterSidebar type="jobs" className="hidden lg:block shrink-0" /></Suspense>
 
-          {/* Results Grid */}
           <div className="flex-1 space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
             <div className="flex items-center justify-between border-b border-primary/5 pb-4">
               <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                 <span className="text-emerald-500">{jobs.length}</span> Opportunities Available
               </p>
+              <Suspense><MobileFilterDrawer type="jobs" /></Suspense>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {jobs.length > 0 ? (
-                jobs.map((job) => (
-                  <JobCard 
-                    key={job.$id} 
+              {paged.length > 0 ? (
+                paged.map((job) => (
+                  <JobCard
+                    key={job.$id}
                     id={job.$id}
                     title={job.title}
                     companyName={job.companyName}
@@ -94,12 +105,18 @@ export default async function JobsPage({
                   />
                 ))
               ) : (
-                <div className="col-span-full py-32 text-center text-muted-foreground glass-card border-none rounded-[32px]">
+                <div className="col-span-full py-32 text-center text-muted-foreground glass-card border-none rounded-[18px]">
                   <p className="text-lg font-bold uppercase tracking-widest italic opacity-40">Market Empty</p>
                   <p className="text-xs font-medium mt-2">No opportunities match your current filtration parameters.</p>
                 </div>
               )}
             </div>
+
+            {totalPages > 1 && (
+              <Suspense>
+                <Pagination currentPage={page} totalPages={totalPages} />
+              </Suspense>
+            )}
           </div>
         </div>
       </div>

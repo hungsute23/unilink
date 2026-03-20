@@ -1,102 +1,92 @@
 import { getPlatformStats } from "@/lib/appwrite/actions/admin.actions";
-import { OverviewStats } from "@/components/admin/OverviewStats";
-import { ActivityChart } from "@/components/admin/ActivityChart";
-import { 
-  ShieldCheck, 
-  ArrowRight, 
-  History,
-  AlertCircle
-} from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import {
+  Users, School, GraduationCap, Briefcase,
+  FileText, ArrowRight, ShieldCheck,
+  Settings2, Building2,
+} from "lucide-react";
+
+function StatCard({ label, value, icon: Icon, color }: { label: string; value: number; icon: any; color: string }) {
+  return (
+    <div className="bg-white dark:bg-white/5 rounded-2xl p-5 border border-gray-100 dark:border-white/10 flex items-center gap-4">
+      <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
+        <Icon className="w-5 h-5" />
+      </div>
+      <div>
+        <p className="text-2xl font-bold text-gray-900 dark:text-white">{value.toLocaleString()}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">{label}</p>
+      </div>
+    </div>
+  );
+}
+
+function QuickAction({ href, icon: Icon, label, desc, color }: { href: string; icon: any; label: string; desc: string; color: string }) {
+  return (
+    <Link href={href} className="bg-white dark:bg-white/5 rounded-2xl p-5 border border-gray-100 dark:border-white/10 hover:border-rose-200 dark:hover:border-rose-500/40 hover:shadow-sm transition-all group flex items-center gap-4">
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
+        <Icon className="w-5 h-5" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-gray-800 dark:text-white">{label}</p>
+        <p className="text-xs text-gray-400 mt-0.5">{desc}</p>
+      </div>
+      <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-rose-500 group-hover:translate-x-0.5 transition-all" />
+    </Link>
+  );
+}
 
 export default async function PortalPage() {
   const result = await getPlatformStats();
-  
+
   if (!result.success) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] glass-card border-none rounded-3xl p-12 text-center">
-        <AlertCircle className="w-16 h-16 text-destructive mb-4 opacity-50" />
-        <h2 className="text-2xl font-black mb-2">Failed to load platform stats</h2>
-        <p className="text-muted-foreground mb-8 max-w-sm">{result.error}</p>
-        <Button variant="outline" className="rounded-2xl px-8 h-12">Try Again</Button>
+      <div className="flex flex-col items-center justify-center py-24 text-center">
+        <div className="w-16 h-16 bg-red-50 dark:bg-red-500/10 rounded-2xl flex items-center justify-center mb-4">
+          <ShieldCheck className="w-8 h-8 text-red-500" />
+        </div>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Failed to load platform stats</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm mt-2">{result.error}</p>
       </div>
     );
   }
 
-  const stats = JSON.parse(JSON.stringify(result.stats!));
+  const stats = result.stats!;
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-1000">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div className="space-y-6">
+      {/* Welcome banner */}
+      <div className="bg-gradient-to-r from-rose-600 to-rose-500 rounded-2xl p-6 text-white flex items-center justify-between">
         <div>
-          <div className="flex items-center gap-2 text-primary font-black text-xs uppercase tracking-[0.3em] mb-2 opacity-80">
-            <ShieldCheck className="w-4 h-4" />
-            Platform Control Center
-          </div>
-          <h1 className="text-5xl font-black tracking-tighter text-gradient leading-tight">
-            Admin Overview
-          </h1>
-          <p className="text-muted-foreground font-medium mt-2 max-w-xl">
-            Real-time monitoring of UniLink infrastructure. Approve partners, moderate content, and manage global system configurations.
+          <p className="text-rose-200 text-sm font-medium">Platform Control Center</p>
+          <h2 className="text-2xl font-bold mt-0.5">Admin Overview</h2>
+          <p className="text-rose-200 text-sm mt-1">
+            {stats.totalUsers.toLocaleString()} registered users across the platform
           </p>
         </div>
-        
-        <div className="flex items-center gap-3">
-          <Button asChild variant="outline" className="h-14 px-8 rounded-2xl font-black border-primary/20 hover:bg-primary/5 transition-all">
-            <Link href="/portal/config">System Config</Link>
-          </Button>
-          <Button className="h-14 px-8 rounded-2xl font-black bg-primary shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all">
-            Quick Action
-          </Button>
+        <div className="hidden sm:flex w-16 h-16 rounded-2xl bg-white/10 items-center justify-center">
+          <ShieldCheck className="w-8 h-8 text-white" />
         </div>
       </div>
 
-      <OverviewStats stats={stats} />
+      {/* Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <StatCard label="Total Users"        value={stats.totalUsers}        icon={Users}         color="bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400" />
+        <StatCard label="Partner Schools"    value={stats.totalSchools}      icon={School}        color="bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400" />
+        <StatCard label="Scholarships"       value={stats.totalScholarships} icon={GraduationCap} color="bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400" />
+        <StatCard label="Job Postings"       value={stats.totalJobs}         icon={Briefcase}     color="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" />
+        <StatCard label="Applications"       value={stats.totalApplications} icon={FileText}      color="bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400" />
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
-          <ActivityChart />
-        </div>
-        
-        <div className="space-y-8">
-          <div className="glass-card border-none rounded-3xl p-8 shadow-xl">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="font-black uppercase tracking-widest text-sm opacity-60 flex items-center gap-2">
-                <History className="w-4 h-4" />
-                Recent Alerts
-              </h3>
-              <Link href="/portal/moderation" className="text-[10px] font-black text-primary hover:underline uppercase tracking-widest">View All</Link>
-            </div>
-            
-            <div className="space-y-4">
-              {[
-                { type: "Pending Approval", title: "National Taiwan University", time: "2h ago", color: "bg-amber-500" },
-                { type: "New Partner", title: "TSMC Recruitment", time: "5h ago", color: "bg-blue-500" },
-                { type: "System Update", title: "Semester config changed", time: "1d ago", color: "bg-emerald-500" },
-              ].map((alert, i) => (
-                <div key={i} className="flex gap-4 group cursor-pointer hover:bg-primary/5 p-2 rounded-2xl transition-all">
-                  <div className={cn("w-1 h-10 rounded-full mt-1", alert.color)} />
-                  <div className="flex-1">
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">{alert.type}</p>
-                    <p className="text-sm font-bold group-hover:text-primary transition-colors">{alert.title}</p>
-                    <p className="text-[10px] font-medium opacity-50 mt-1">{alert.time}</p>
-                  </div>
-                  <ArrowRight className="w-4 h-4 self-center opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-primary/10 rounded-3xl p-8 border border-primary/20 relative overflow-hidden group">
-            <div className="relative z-10">
-              <h3 className="text-xl font-black mb-2 leading-tight">Maintenance Mode is OFF</h3>
-              <p className="text-xs font-medium opacity-70 mb-6 max-w-[200px]">The platform is currently accessible by all users globally.</p>
-              <Button size="sm" className="rounded-xl font-black bg-white text-primary hover:bg-white/90">Toggle System State</Button>
-            </div>
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-700" />
-          </div>
+      {/* Quick actions */}
+      <div className="space-y-3">
+        <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Quick Access</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <QuickAction href="/portal/users"       icon={Users}         label="Manage Users"       desc="View and manage all registered users"     color="bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400" />
+          <QuickAction href="/portal/schools"     icon={School}        label="Partner Schools"    desc={`${stats.totalSchools} schools registered`}  color="bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400" />
+          <QuickAction href="/portal/businesses"  icon={Building2}     label="Businesses"         desc="Manage partner companies"                 color="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" />
+          <QuickAction href="/portal/scholarships"icon={GraduationCap} label="Scholarships"       desc={`${stats.totalScholarships} programs listed`} color="bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400" />
+          <QuickAction href="/portal/community"   icon={FileText}      label="Community Posts"    desc="Moderate student community content"        color="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400" />
+          <QuickAction href="/portal/config"      icon={Settings2}     label="System Config"      desc="Platform settings and configuration"       color="bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400" />
         </div>
       </div>
     </div>
