@@ -72,8 +72,8 @@ export default function SeedPage() {
       } else {
         toast.error(`Reset failed: ${result.error}`);
       }
-    } catch (error) {
-      toast.error("An unexpected error occurred during reset.");
+    } catch (error: any) {
+      toast.error(`Reset error: ${error?.message ?? String(error)}`, { duration: 10000 });
     } finally {
       setLoadingReset(false);
     }

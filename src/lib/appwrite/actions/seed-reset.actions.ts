@@ -6,14 +6,28 @@ import { revalidatePath } from "next/cache";
 
 const DB_ID = process.env.APPWRITE_DATABASE_ID!;
 
-/** Delete ALL documents in a collection */
+/** Delete ALL documents in a collection — sequential deletes to avoid rate limits */
 async function clearCollection(databases: any, colId: string) {
   let deleted = 0;
-  while (true) {
-    const docs = await databases.listDocuments(DB_ID, colId, [Query.limit(100)]);
+  let safety = 0;
+  while (safety < 20) {
+    safety++;
+    let docs: any;
+    try {
+      docs = await databases.listDocuments(DB_ID, colId, [Query.limit(100)]);
+    } catch (e) {
+      console.warn(`  [warn] listDocuments failed for ${colId}:`, e);
+      break;
+    }
     if (docs.documents.length === 0) break;
-    await Promise.all(docs.documents.map((d: any) => databases.deleteDocument(DB_ID, colId, d.$id)));
-    deleted += docs.documents.length;
+    for (const d of docs.documents) {
+      try {
+        await databases.deleteDocument(DB_ID, colId, d.$id);
+        deleted++;
+      } catch (e) {
+        console.warn(`  [warn] Could not delete ${colId}/${d.$id}:`, e);
+      }
+    }
   }
   console.log(`  Cleared ${colId}: ${deleted} docs`);
 }
@@ -24,14 +38,14 @@ export async function resetAndSeed() {
   try {
     // ── 1. CLEAR CONTENT COLLECTIONS ────────────────────────────────────────
     console.log("🗑️  Clearing old data...");
-    await clearCollection(databases, "Posts");
-    await clearCollection(databases, "Jobs");
-    await clearCollection(databases, "Scholarships");
-    await clearCollection(databases, "Programs");
-    await clearCollection(databases, "Admission_Terms");
-    await clearCollection(databases, "Businesses");
-    await clearCollection(databases, "Schools");
-    await clearCollection(databases, "System_Configs");
+    const toClear = ["Posts", "Jobs", "Scholarships", "Programs", "Admission_Terms", "Businesses", "Schools", "System_Configs"];
+    for (const col of toClear) {
+      try {
+        await clearCollection(databases, col);
+      } catch (e) {
+        console.warn(`  [warn] clearCollection failed for ${col}:`, e);
+      }
+    }
     console.log("✅ Cleared all collections");
 
     // ── 2. USERS ─────────────────────────────────────────────────────────────
@@ -166,9 +180,15 @@ export async function resetAndSeed() {
 
     const schoolIds: Record<string, string> = {};
     for (const s of schools) {
-      const doc = await databases.createDocument(DB_ID, "Schools", ID.unique(), s.data);
-      schoolIds[s.key] = doc.$id;
-      console.log(`  ✓ ${s.data.schoolName}`);
+      try {
+        const doc = await databases.createDocument(DB_ID, "Schools", ID.unique(), s.data);
+        schoolIds[s.key] = doc.$id;
+        console.log(`  ✓ ${s.data.schoolName}`);
+      } catch (e: any) {
+        const msg = e?.message ?? String(e);
+        console.error(`  ❌ School failed [${s.key}]: ${msg}`);
+        throw new Error(`School creation failed for ${s.key}: ${msg}`);
+      }
     }
 
     // ── 5. ADMISSION TERMS ───────────────────────────────────────────────────
@@ -255,9 +275,15 @@ export async function resetAndSeed() {
 
     const bizIds: Record<string, string> = {};
     for (const b of businesses) {
-      const doc = await databases.createDocument(DB_ID, "Businesses", ID.unique(), b.data);
-      bizIds[b.key] = doc.$id;
-      console.log(`  ✓ ${b.data.companyName}`);
+      try {
+        const doc = await databases.createDocument(DB_ID, "Businesses", ID.unique(), b.data);
+        bizIds[b.key] = doc.$id;
+        console.log(`  ✓ ${b.data.companyName}`);
+      } catch (e: any) {
+        const msg = e?.message ?? String(e);
+        console.error(`  ❌ Business failed [${b.key}]: ${msg}`);
+        throw new Error(`Business creation failed for ${b.key}: ${msg}`);
+      }
     }
 
     // ── 8. JOBS (imported from seed-content) ────────────────────────────────
