@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/student-portal/saved)",
+      "WebFetch(domain:next-sass-html.vercel.app)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/community)",
+      "Bash(appwrite --version)",
+      "Bash(npx appwrite:*)",
+      "Bash(gh auth:*)",
+      "Bash(git remote:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
