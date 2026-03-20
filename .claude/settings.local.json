@@ -10,7 +10,9 @@
       "Bash(npx appwrite:*)",
       "Bash(gh auth:*)",
       "Bash(git remote:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }
