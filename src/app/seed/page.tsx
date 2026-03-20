@@ -2,6 +2,7 @@
 
 import React from "react";
 import { seedPlatformData } from "@/lib/appwrite/actions/seed.actions";
+import { seedContentData } from "@/lib/appwrite/actions/seed-content.actions";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { 
@@ -16,14 +17,16 @@ import Link from "next/link";
 
 export default function SeedPage() {
   const [loading, setLoading] = React.useState(false);
+  const [loadingContent, setLoadingContent] = React.useState(false);
   const [complete, setComplete] = React.useState(false);
+  const [completeContent, setCompleteContent] = React.useState(false);
 
   const handleSeed = async () => {
     setLoading(true);
     try {
       const result = await seedPlatformData();
       if (result.success) {
-        toast.success("Platform successfully seeded with premium data!");
+        toast.success("Platform data seeded successfully!");
         setComplete(true);
       } else {
         toast.error(`Seeding failed: ${result.error}`);
@@ -32,6 +35,23 @@ export default function SeedPage() {
       toast.error("An unexpected error occurred during seeding.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSeedContent = async () => {
+    setLoadingContent(true);
+    try {
+      const result = await seedContentData();
+      if (result.success) {
+        toast.success("Rich content data seeded successfully!");
+        setCompleteContent(true);
+      } else {
+        toast.error(`Content seeding failed: ${result.error}`);
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred.");
+    } finally {
+      setLoadingContent(false);
     }
   };
 
@@ -55,16 +75,16 @@ export default function SeedPage() {
           <div className="space-y-4">
             <div className="p-6 rounded-3xl bg-primary/5 border border-primary/10 space-y-3">
               <p className="text-xs font-bold uppercase tracking-widest flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> 
-                Master Records (NTU & TSMC)
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                Step 1 — 6 Schools, 7 Terms, 18 Programs
               </p>
               <p className="text-xs font-bold uppercase tracking-widest flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                Cross-Portal Identities
+                Step 1 — 6 Businesses, 4 User Accounts
               </p>
               <p className="text-xs font-bold uppercase tracking-widest flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                Simulated Applications
+                Step 2 — 18 Detailed Jobs + 8 Scholarships
               </p>
             </div>
             
@@ -76,33 +96,54 @@ export default function SeedPage() {
             </div>
           </div>
 
-          {!complete ? (
-            <Button 
-               onClick={handleSeed}
-               disabled={loading}
-               className="w-full h-16 rounded-2xl bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20 group transition-all duration-500"
-            >
-              {loading ? (
-                <Loader2 className="w-6 h-6 animate-spin" />
-              ) : (
-                <div className="flex items-center gap-3">
-                  <span className="font-black italic uppercase text-lg">Ignite Environment</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </div>
-              )}
-            </Button>
-          ) : (
-            <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
-               <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-center">
-                  <p className="text-emerald-500 font-black italic uppercase">Deployment Completed</p>
-               </div>
-               <Link href="/login" className="block w-full">
-                  <Button variant="outline" className="w-full h-16 rounded-2xl border-primary/20 hover:bg-primary/5">
-                    <span className="font-black italic uppercase">Access Intelligence Portals</span>
-                  </Button>
-               </Link>
-            </div>
-          )}
+          <div className="space-y-3">
+            {!complete ? (
+              <Button
+                onClick={handleSeed}
+                disabled={loading}
+                className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20 group transition-all duration-500"
+              >
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                  <div className="flex items-center gap-3">
+                    <span className="font-black italic uppercase">Step 1 — Seed Base Data</span>
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                )}
+              </Button>
+            ) : (
+              <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-center">
+                <p className="text-emerald-500 font-black italic uppercase text-sm">✓ Step 1 Complete</p>
+              </div>
+            )}
+
+            {!completeContent ? (
+              <Button
+                onClick={handleSeedContent}
+                disabled={loadingContent}
+                variant="outline"
+                className="w-full h-14 rounded-2xl border-primary/30 hover:bg-primary/5 group transition-all duration-500"
+              >
+                {loadingContent ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                  <div className="flex items-center gap-3">
+                    <span className="font-black italic uppercase">Step 2 — Seed Rich Content</span>
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                )}
+              </Button>
+            ) : (
+              <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-center">
+                <p className="text-emerald-500 font-black italic uppercase text-sm">✓ Step 2 Complete</p>
+              </div>
+            )}
+
+            {complete && completeContent && (
+              <Link href="/login" className="block w-full">
+                <Button variant="outline" className="w-full h-14 rounded-2xl border-primary/20 hover:bg-primary/5">
+                  <span className="font-black italic uppercase">Access Portals</span>
+                </Button>
+              </Link>
+            )}
+          </div>
 
           <div className="flex items-center justify-center gap-2 text-[10px] font-black uppercase text-muted-foreground/40 cursor-not-allowed">
             <Lock className="w-3 h-3" />
