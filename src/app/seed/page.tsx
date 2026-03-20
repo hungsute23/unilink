@@ -3,23 +3,27 @@
 import React from "react";
 import { seedPlatformData } from "@/lib/appwrite/actions/seed.actions";
 import { seedContentData } from "@/lib/appwrite/actions/seed-content.actions";
+import { resetAndSeed } from "@/lib/appwrite/actions/seed-reset.actions";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { 
-  Database, 
-  CheckCircle2, 
-  AlertCircle, 
+import {
+  Database,
+  CheckCircle2,
+  AlertCircle,
   Loader2,
   Lock,
-  ArrowRight
+  ArrowRight,
+  RotateCcw,
 } from "lucide-react";
 import Link from "next/link";
 
 export default function SeedPage() {
   const [loading, setLoading] = React.useState(false);
   const [loadingContent, setLoadingContent] = React.useState(false);
+  const [loadingReset, setLoadingReset] = React.useState(false);
   const [complete, setComplete] = React.useState(false);
   const [completeContent, setCompleteContent] = React.useState(false);
+  const [completeReset, setCompleteReset] = React.useState(false);
 
   const handleSeed = async () => {
     setLoading(true);
@@ -52,6 +56,26 @@ export default function SeedPage() {
       toast.error("An unexpected error occurred.");
     } finally {
       setLoadingContent(false);
+    }
+  };
+
+  const handleReset = async () => {
+    if (!confirm("⚠️ This will DELETE all data and re-seed from scratch. Continue?")) return;
+    setLoadingReset(true);
+    try {
+      const result = await resetAndSeed();
+      if (result.success) {
+        toast.success("Full reset & re-seed complete!");
+        setCompleteReset(true);
+        setComplete(true);
+        setCompleteContent(true);
+      } else {
+        toast.error(`Reset failed: ${result.error}`);
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred during reset.");
+    } finally {
+      setLoadingReset(false);
     }
   };
 
@@ -135,6 +159,28 @@ export default function SeedPage() {
                 <p className="text-emerald-500 font-black italic uppercase text-sm">✓ Step 2 Complete</p>
               </div>
             )}
+
+            <div className="pt-2 border-t border-border/40">
+              {!completeReset ? (
+                <Button
+                  onClick={handleReset}
+                  disabled={loadingReset}
+                  variant="outline"
+                  className="w-full h-14 rounded-2xl border-red-500/30 hover:bg-red-500/5 text-red-500 group transition-all duration-500"
+                >
+                  {loadingReset ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                    <div className="flex items-center gap-3">
+                      <RotateCcw className="w-5 h-5" />
+                      <span className="font-black italic uppercase">Force Reset &amp; Re-seed All</span>
+                    </div>
+                  )}
+                </Button>
+              ) : (
+                <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-center">
+                  <p className="text-emerald-500 font-black italic uppercase text-sm">✓ Reset Complete — Fresh Data Loaded</p>
+                </div>
+              )}
+            </div>
 
             {complete && completeContent && (
               <Link href="/login" className="block w-full">

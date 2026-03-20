@@ -1536,14 +1536,14 @@ export async function seedContentData() {
         // Find schoolId if school_based
         let schoolId: string | undefined;
         if (s.source === "school_based") {
-          const schoolKeyword = s.name.includes("NTU") ? "National Taiwan University"
-            : s.name.includes("NCKU") ? "National Cheng Kung"
-            : s.name.includes("NTHU") ? "National Tsing Hua"
-            : s.name.includes("FCU") ? "Feng Chia"
+          const exactName = s.name.includes("NTU") ? "National Taiwan University (NTU)"
+            : s.name.includes("NCKU") ? "National Cheng Kung University (NCKU)"
+            : s.name.includes("NTHU") ? "National Tsing Hua University (NTHU)"
+            : s.name.includes("FCU") ? "Feng Chia University (FCU)"
             : null;
-          if (schoolKeyword) {
+          if (exactName) {
             const schoolDocs = await databases.listDocuments(DB_ID, "Schools", [
-              Query.search("schoolName", schoolKeyword),
+              Query.equal("schoolName", exactName),
             ]);
             if (schoolDocs.total > 0) schoolId = schoolDocs.documents[0].$id;
           }
