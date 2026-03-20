@@ -90,8 +90,8 @@ export default async function PostDetailPage({ params }: Props) {
       })
     : null;
 
-  // Related posts — exclude current
-  const related = relatedRaw.filter((p) => p.slug !== slug).slice(0, 3);
+  // Related posts — exclude current, serialize to plain objects
+  const related = relatedRaw.filter((p) => p.slug !== slug).slice(0, 3).map((p) => ({ ...p }));
 
   return (
     <div className="min-h-screen bg-background">

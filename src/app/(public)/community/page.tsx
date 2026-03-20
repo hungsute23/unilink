@@ -18,7 +18,8 @@ export default async function CommunityPage() {
     getCommunityStats(),
   ]);
 
-  const [featured, ...rest] = posts;
+  const plainPosts = posts.map((p) => ({ ...p }));
+  const [featured, ...rest] = plainPosts;
 
   return (
     <div className="min-h-screen bg-background">
