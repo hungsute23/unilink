@@ -16,7 +16,6 @@ import { SchoolsSlider }   from "@/components/public/SchoolsSlider";
 import { ScholarshipCard }  from "@/components/public/ScholarshipCard";
 import { JobCard }          from "@/components/public/JobCard";
 import { PostCard }         from "@/components/public/PostCard";
-import { ThemeToggle }      from "@/components/shared/ThemeToggle";
 import { createAdminClient } from "@/lib/appwrite/server";
 import { Query } from "node-appwrite";
 
@@ -713,10 +712,6 @@ export default async function HomePage() {
       </section>
 
 
-      {/* Theme toggle — offset left to clear the chat FAB */}
-      <div className="fixed bottom-5 right-[88px] z-[100]">
-        <ThemeToggle />
-      </div>
     </div>
   );
 }
