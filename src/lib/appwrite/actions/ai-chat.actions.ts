@@ -92,13 +92,14 @@ export async function sendChatMessage(
     return { type: "spam", message: "Bạn vừa gửi tin nhắn này rồi." };
 
   const apiKey = process.env.GEMINI_API_KEY;
+  console.log("[sendChatMessage] apiKey present:", !!apiKey, "| msg:", sanitized.slice(0, 30));
   if (!apiKey)
     return { type: "error", message: "AI service not configured." };
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash-001",
+      model: "gemini-2.5-flash",
       systemInstruction: SYSTEM_PROMPT,
       safetySettings: [
         { category: HarmCategory.HARM_CATEGORY_HARASSMENT,        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
@@ -145,9 +146,6 @@ export async function sendChatMessage(
     return { type: "answer", reply };
   } catch (error: any) {
     const msg = error?.message ?? String(error);
-    console.error("[sendChatMessage] error:", msg);
-    if (msg.includes("API key")) return { type: "error", message: "AI chưa được cấu hình." };
-    if (msg.includes("quota") || msg.includes("429")) return { type: "error", message: "AI đang quá tải, thử lại sau ít phút." };
-    return { type: "error", message: "AI không phản hồi được. Vui lòng thử lại." };
+    return { type: "error", message: `[DEBUG] ${msg.slice(0, 200)}` };
   }
 }

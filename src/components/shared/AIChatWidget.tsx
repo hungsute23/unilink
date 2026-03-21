@@ -233,7 +233,7 @@ export function AIChatWidget() {
   const [open, setOpen]           = useState(false);
   const [minimized, setMinimized] = useState(false);
   const [messages, setMessages]   = useState<Message[]>([WELCOME]);
-  const [input, setInput]         = useState("");
+  const [inputEmpty, setInputEmpty] = useState(true);
   const [isTyping, setIsTyping]   = useState(false);
   const [unread, setUnread]       = useState(0);
   const [rateLimitMsg, setRateLimitMsg] = useState<string | null>(null);
@@ -287,8 +287,16 @@ export function AIChatWidget() {
     return sentTimestamps.current.length >= RATE_LIMIT_MAX;
   };
 
+  const clearInput = () => {
+    if (inputRef.current) {
+      inputRef.current.value = "";
+      inputRef.current.style.height = "42px";
+    }
+    setInputEmpty(true);
+  };
+
   const handleSend = async (text?: string) => {
-    const value = (text ?? input).trim();
+    const value = (text ?? inputRef.current?.value ?? "").trim();
     if (!value || isTyping) return;
 
     // Client-side rate limit
@@ -309,11 +317,7 @@ export function AIChatWidget() {
     };
 
     setMessages((prev) => [...prev, userMsg]);
-    setInput("");
-    if (inputRef.current) {
-      inputRef.current.value = "";
-      inputRef.current.style.height = "22px";
-    }
+    clearInput();
     setIsTyping(true);
 
     const history = messages
@@ -373,7 +377,7 @@ export function AIChatWidget() {
 
   const handleReset = () => {
     setMessages([WELCOME]);
-    setInput("");
+    clearInput();
     setRateLimitMsg(null);
     sentTimestamps.current = [];
     try { localStorage.removeItem(STORAGE_KEY); } catch {}
@@ -481,45 +485,45 @@ export function AIChatWidget() {
           )}
 
           {/* Input */}
-          <div className="px-3 pb-3 pt-2 border-t border-border/60 shrink-0">
+          <div className="px-3 pb-3 pt-2 border-t border-border/40 bg-background shrink-0">
             {rateLimitMsg && (
               <div className="flex items-center gap-1.5 mb-2 px-1">
                 <Clock size={11} className="text-rose-500 shrink-0" />
                 <p className="text-[11px] text-rose-500">{rateLimitMsg}</p>
               </div>
             )}
-            <div className="flex items-end gap-2 bg-muted/50 border border-border rounded-2xl px-3.5 py-2.5 focus-within:border-primary/50 focus-within:bg-background transition-all">
+            <div className="flex items-end gap-2 bg-muted/40 border border-border/60 rounded-2xl px-4 py-2 focus-within:border-primary/40 focus-within:bg-background/80 transition-all duration-200 shadow-sm">
               <textarea
                 ref={inputRef}
-                value={input}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  // Ignore bare newline from Enter key (already handled by onKeyDown)
-                  if (val === "\n" || val === "\r\n") return;
-                  setInput(val);
+                defaultValue=""
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
                 }}
-                onKeyDown={handleKeyDown}
-                placeholder="Nhập câu hỏi của bạn..."
+                onChange={(e) => setInputEmpty(!e.target.value.trim())}
+                placeholder="Hỏi về du học Đài Loan..."
                 rows={1}
-                className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 resize-none outline-none max-h-[80px] leading-relaxed"
-                style={{ minHeight: "22px" }}
+                className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 resize-none outline-none leading-6 py-1"
+                style={{ minHeight: "24px", maxHeight: "96px" }}
                 onInput={(e) => {
                   const el = e.currentTarget;
-                  el.style.height = "22px";
-                  el.style.height = Math.min(el.scrollHeight, 80) + "px";
+                  el.style.height = "24px";
+                  el.style.height = Math.min(el.scrollHeight, 96) + "px";
                 }}
               />
               <button
                 onClick={() => handleSend()}
-                disabled={!input.trim() || isTyping}
+                disabled={inputEmpty || isTyping}
                 className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all duration-200",
-                  input.trim() && !isTyping
-                    ? "bg-primary text-white shadow-md shadow-primary/30 hover:scale-110"
-                    : "bg-muted text-muted-foreground/50"
+                  "w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 mb-0.5",
+                  !inputEmpty && !isTyping
+                    ? "bg-primary text-white shadow-sm hover:bg-primary/90 hover:scale-105"
+                    : "bg-muted/80 text-muted-foreground/40 cursor-not-allowed"
                 )}
               >
-                <Send size={14} />
+                <Send size={13} />
               </button>
             </div>
             <p className="text-center text-[9px] text-muted-foreground/40 mt-1.5 tracking-wide uppercase">
