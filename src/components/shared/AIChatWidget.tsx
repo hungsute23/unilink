@@ -310,6 +310,10 @@ export function AIChatWidget() {
 
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
+    if (inputRef.current) {
+      inputRef.current.value = "";
+      inputRef.current.style.height = "22px";
+    }
     setIsTyping(true);
 
     const history = messages
