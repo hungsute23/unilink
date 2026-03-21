@@ -725,7 +725,7 @@ export default async function HomePage() {
                 <span className="text-xl font-bold text-background">UniLink</span>
               </div>
               <p className="text-background/40 text-sm leading-relaxed">
-                The #1 educational and career gateway in Taiwan, powered by AI.
+                The #1 educational &amp; career gateway for international students in Taiwan, powered by Monstudio.
               </p>
             </div>
             {[
@@ -755,8 +755,8 @@ export default async function HomePage() {
         </div>
       </footer>
 
-      {/* Theme toggle */}
-      <div className="fixed bottom-6 right-6 z-[100]">
+      {/* Theme toggle — offset left to clear the chat FAB */}
+      <div className="fixed bottom-5 right-[88px] z-[100]">
         <ThemeToggle />
       </div>
     </div>

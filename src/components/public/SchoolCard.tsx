@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { GraduationCap, MapPin, ShieldCheck, ArrowRight } from "lucide-react";
+import { MapPin, ShieldCheck, ArrowRight } from "lucide-react";
 import { SaveButton } from "@/components/shared/SaveButton";
+import { SafeLogo } from "@/components/shared/SafeLogo";
 import { cn } from "@/lib/utils";
 
 interface SchoolCardProps {
@@ -32,27 +32,14 @@ export function SchoolCard({
   isVerified = true,
   className,
 }: SchoolCardProps) {
-  const [imgError, setImgError] = React.useState(false);
-
   return (
     <div className={cn("ns-card p-6 flex flex-col gap-5", className)}>
       {/* Header: logo left, name + info right */}
       <div className="flex items-start gap-4">
         {/* Logo */}
         <div className="relative shrink-0">
-          <div className="w-16 h-16 rounded-2xl border border-border bg-background flex items-center justify-center p-2">
-            {logoUrl && !imgError ? (
-              <Image
-                src={logoUrl}
-                alt={name || "School logo"}
-                width={48}
-                height={48}
-                className="object-contain rounded-lg"
-                onError={() => setImgError(true)}
-              />
-            ) : (
-              <GraduationCap className="w-8 h-8 text-primary/50" />
-            )}
+          <div className="w-16 h-16 rounded-xl border border-border bg-background">
+            <SafeLogo src={logoUrl} alt={name || "School logo"} size={64} fallback="school" />
           </div>
           {isVerified && (
             <div className="absolute -right-1.5 -bottom-1.5 bg-primary text-primary-foreground p-1 rounded-full shadow-sm">

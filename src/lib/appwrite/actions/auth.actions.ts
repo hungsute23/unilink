@@ -34,9 +34,9 @@ export async function loginWithEmail(formData: FormData) {
     const role = (user.prefs as any)?.role || "student";
 
     return { success: true, role };
-  } catch (error: any) {
-    console.error("Login error:", error);
-    return { error: error?.message || "Đăng nhập thất bại." };
+  } catch (error) {
+    console.error("[loginWithEmail]", error);
+    return { error: "Email hoặc mật khẩu không đúng." };
   }
 }
 
@@ -91,9 +91,72 @@ export async function registerUser(formData: FormData) {
     });
 
     return { success: true, role };
-  } catch (error: any) {
-    console.error("Register error:", error);
-    return { error: error?.message || "Đăng ký thất bại." };
+  } catch (error) {
+    console.error("[registerUser]", error);
+    return { error: "Đăng ký thất bại. Email có thể đã được sử dụng." };
+  }
+}
+
+/**
+ * Update display name.
+ */
+export async function updateAccountName(newName: string) {
+  try {
+    const trimmed = newName.trim();
+    if (!trimmed || trimmed.length > 100)
+      return { success: false, error: "Name must be 1–100 characters." };
+
+    const { account } = await createSessionClient();
+    await account.updateName(trimmed);
+
+    return { success: true };
+  } catch (error) {
+    console.error("[updateAccountName]", error);
+    return { success: false, error: "Failed to update name. Please try again." };
+  }
+}
+
+/**
+ * Change password — requires the current password for verification.
+ */
+export async function updateAccountPassword(currentPassword: string, newPassword: string) {
+  try {
+    if (!currentPassword || !newPassword)
+      return { success: false, error: "Both passwords are required." };
+    if (newPassword.length < 8)
+      return { success: false, error: "New password must be at least 8 characters." };
+    if (newPassword === currentPassword)
+      return { success: false, error: "New password must be different from current password." };
+
+    const { account } = await createSessionClient();
+    await account.updatePassword(newPassword, currentPassword);
+
+    return { success: true };
+  } catch (error) {
+    console.error("[updateAccountPassword]", error);
+    // Appwrite returns 401 when current password is wrong — keep message vague
+    return { success: false, error: "Incorrect current password or update failed." };
+  }
+}
+
+/**
+ * Change email — requires the current password for verification.
+ */
+export async function updateAccountEmail(newEmail: string, currentPassword: string) {
+  try {
+    const trimmed = newEmail.trim().toLowerCase();
+    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed))
+      return { success: false, error: "Invalid email address." };
+    if (!currentPassword)
+      return { success: false, error: "Current password is required to change email." };
+
+    const { account } = await createSessionClient();
+    await account.updateEmail(trimmed, currentPassword);
+
+    return { success: true };
+  } catch (error) {
+    console.error("[updateAccountEmail]", error);
+    return { success: false, error: "Failed to update email. Check your password and try again." };
   }
 }
 

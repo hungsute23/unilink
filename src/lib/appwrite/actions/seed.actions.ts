@@ -913,13 +913,13 @@ We look forward to reviewing your application. For TSMC internship openings, sea
       {
         authorName: "Kevin Wu",
         authorRole: "student",
-        title: "Learning Mandarin in Taiwan: My 1-Year Progress (From Zero to HSK 3)",
+        title: "Learning Mandarin in Taiwan: My 1-Year Progress (From Zero to TOCFL 3)",
         slug: `learning-mandarin-taiwan-one-year-progress-${Date.now() - 70000}`,
-        excerpt: "I arrived in Taiwan knowing absolutely zero Mandarin. One year later, I passed HSK 3 and can hold real conversations. Here's the exact method I used — including free resources.",
-        tags: ["Mandarin", "language", "HSK", "study tips", "Taiwan"],
-        content: `## From Zero to HSK 3 in 12 Months: My Exact Method
+        excerpt: "I arrived in Taiwan knowing absolutely zero Mandarin. One year later, I passed TOCFL 3 and can hold real conversations. Here's the exact method I used — including free resources.",
+        tags: ["Mandarin", "language", "TOCFL", "study tips", "Taiwan"],
+        content: `## From Zero to TOCFL 3 in 12 Months: My Exact Method
 
-When I arrived in Taiwan for my Master's program, I genuinely knew zero Mandarin. Not even 你好. One year later, I passed HSK 3 (intermediate) and can navigate daily life, shop at markets, and have basic conversations with Taiwanese colleagues.
+When I arrived in Taiwan for my Master's program, I genuinely knew zero Mandarin. Not even 你好. One year later, I passed TOCFL 3 (intermediate) and can navigate daily life, shop at markets, and have basic conversations with Taiwanese colleagues.
 
 Here's exactly what I did.
 
@@ -947,7 +947,7 @@ I started formal study with these free resources:
 4. **iTalki** — Found a language exchange partner (free — trade English lessons)
 
 My routine (1 hour/day):
-- 20 min: Anki flashcards (I used a pre-made HSK 2 deck)
+- 20 min: Anki flashcards (I used a pre-made TOCFL 2 deck)
 - 20 min: ChinesePod podcast
 - 20 min: iTalki language exchange
 
@@ -962,11 +962,11 @@ Living in Taiwan is the biggest cheat code. Here's how I maximized immersion:
 
 By month 9, I was dreaming in Mandarin occasionally.
 
-### HSK 3 Preparation (Final 3 months)
+### TOCFL 3 Preparation (Final 3 months)
 
-HSK 3 requires ~600 vocabulary words. I used:
-- Official HSK 3 vocabulary list (free PDF online)
-- Anki deck for HSK 3 words
+TOCFL 3 requires ~600 vocabulary words. I used:
+- Official TOCFL 3 vocabulary list (free PDF online)
+- Anki deck for TOCFL 3 words
 - 3 practice tests before the exam
 
 I passed with 247/300 (passing is 180/300).

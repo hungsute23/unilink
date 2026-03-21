@@ -40,6 +40,7 @@ export const metadata: Metadata = {
 };
 
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { AIChatWidget } from "@/components/shared/AIChatWidget";
 
 export default function RootLayout({
   children,
@@ -60,6 +61,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <AIChatWidget />
         </ThemeProvider>
       </body>
     </html>

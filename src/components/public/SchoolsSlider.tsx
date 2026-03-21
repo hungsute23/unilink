@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useRef, useEffect, useCallback } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { GraduationCap, MapPin, ShieldCheck, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { MapPin, ShieldCheck, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { SafeLogo } from "@/components/shared/SafeLogo";
 
 interface School {
   $id: string;
@@ -15,25 +15,12 @@ interface School {
 }
 
 function SlideCard({ school }: { school: School }) {
-  const [imgError, setImgError] = React.useState(false);
-
   return (
     <div className="ns-card p-6 flex flex-col gap-5 h-full group">
       <div className="flex items-start gap-4">
         <div className="relative shrink-0">
-          <div className="w-16 h-16 rounded-2xl border border-border bg-background flex items-center justify-center p-2">
-            {school.logoUrl && !imgError ? (
-              <Image
-                src={school.logoUrl}
-                alt={school.schoolName || "School logo"}
-                width={48}
-                height={48}
-                className="object-contain rounded-lg"
-                onError={() => setImgError(true)}
-              />
-            ) : (
-              <GraduationCap className="w-8 h-8 text-primary/50" />
-            )}
+          <div className="w-16 h-16 rounded-xl border border-border bg-background">
+            <SafeLogo src={school.logoUrl} alt={school.schoolName || "School logo"} size={64} fallback="school" />
           </div>
           <div className="absolute -right-1.5 -bottom-1.5 bg-primary text-primary-foreground p-1 rounded-full shadow-sm">
             <ShieldCheck className="w-3 h-3" />

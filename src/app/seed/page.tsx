@@ -4,6 +4,7 @@ import React from "react";
 import { seedPlatformData } from "@/lib/appwrite/actions/seed.actions";
 import { seedContentData } from "@/lib/appwrite/actions/seed-content.actions";
 import { resetAndSeed } from "@/lib/appwrite/actions/seed-reset.actions";
+import { setupStorageBuckets } from "@/lib/appwrite/actions/setup-storage.actions";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
@@ -14,6 +15,7 @@ import {
   Lock,
   ArrowRight,
   RotateCcw,
+  HardDrive,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -21,10 +23,31 @@ export default function SeedPage() {
   const [loading, setLoading] = React.useState(false);
   const [loadingContent, setLoadingContent] = React.useState(false);
   const [loadingReset, setLoadingReset] = React.useState(false);
+  const [loadingStorage, setLoadingStorage] = React.useState(false);
   const [complete, setComplete] = React.useState(false);
   const [completeContent, setCompleteContent] = React.useState(false);
   const [completeReset, setCompleteReset] = React.useState(false);
+  const [completeStorage, setCompleteStorage] = React.useState(false);
+  const [storageResults, setStorageResults] = React.useState<{ name: string; id: string; status: string }[]>([]);
   const [lastResult, setLastResult] = React.useState<{ ok: boolean; msg: string } | null>(null);
+
+  const handleSetupStorage = async () => {
+    setLoadingStorage(true);
+    try {
+      const result = await setupStorageBuckets();
+      if (result.success || (result as any).results?.length > 0) {
+        setStorageResults((result as any).results ?? []);
+        setCompleteStorage(true);
+        toast.success("Storage buckets ready!");
+      } else {
+        toast.error(`Storage setup failed: ${(result as any).error}`);
+      }
+    } catch (error) {
+      toast.error("Unexpected error during storage setup.");
+    } finally {
+      setLoadingStorage(false);
+    }
+  };
 
   const handleSeed = async () => {
     setLoading(true);
@@ -123,6 +146,36 @@ export default function SeedPage() {
           </div>
 
           <div className="space-y-3">
+            {/* Storage Setup */}
+            {!completeStorage ? (
+              <Button
+                onClick={handleSetupStorage}
+                disabled={loadingStorage}
+                variant="outline"
+                className="w-full h-14 rounded-2xl border-sky-500/30 hover:bg-sky-500/5 text-sky-600 group transition-all duration-500"
+              >
+                {loadingStorage ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                  <div className="flex items-center gap-3">
+                    <HardDrive className="w-5 h-5" />
+                    <span className="font-black italic uppercase">Step 0 — Setup Storage Buckets</span>
+                  </div>
+                )}
+              </Button>
+            ) : (
+              <div className="p-3 rounded-2xl bg-sky-500/10 border border-sky-500/20 space-y-1.5">
+                <p className="text-sky-600 font-black italic uppercase text-sm text-center">✓ Storage Ready</p>
+                {storageResults.map(r => (
+                  <div key={r.id} className="flex items-center justify-between text-xs font-mono px-2">
+                    <span className="text-muted-foreground">{r.name}</span>
+                    <span className={r.status === "error" ? "text-red-500" : "text-emerald-600"}>
+                      {r.status === "created" ? "✓ created" : r.status === "exists" ? "✓ exists" : "✗ error"}
+                      {" "}<span className="opacity-60">{r.id}</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {!complete ? (
               <Button
                 onClick={handleSeed}

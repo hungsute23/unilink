@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   GraduationCap, BookOpen, Briefcase, Home, Users,
   Menu, X, LayoutDashboard, LogOut, ChevronDown,
-  ArrowRight, Sparkles,
+  ArrowRight, Sparkles, Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -136,31 +136,81 @@ export function Header({ user }: HeaderProps) {
             </nav>
 
             {/* ── Desktop actions ── */}
-            <div className="hidden md:flex items-center gap-2 shrink-0">
+            <div className="hidden md:flex items-center gap-1.5 shrink-0">
+
+              {/* AI Matching CTA */}
+              <Link
+                href="/ai-matching"
+                className={cn(
+                  "inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-sm font-bold transition-all duration-200",
+                  pathname === "/ai-matching"
+                    ? "bg-primary text-white shadow-md shadow-primary/30"
+                    : "bg-primary/10 text-primary border border-primary/20 hover:bg-primary hover:text-white hover:shadow-md hover:shadow-primary/30"
+                )}
+              >
+                <Sparkles size={14} className="shrink-0" />
+                AI Match
+              </Link>
+
+              {/* Language switcher — icon button */}
+              <div className="relative">
+                <button
+                  onClick={() => { setLangOpen(!langOpen); setUserMenuOpen(false); }}
+                  title={currentLang.full}
+                  className={cn(
+                    "flex items-center gap-1 h-9 w-9 justify-center rounded-full border transition-all duration-200",
+                    langOpen
+                      ? "border-primary/40 bg-primary/10 text-primary"
+                      : "border-border bg-card hover:bg-muted/60 text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Globe size={15} />
+                </button>
+                {langOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-44 bg-card border border-border rounded-[14px] shadow-xl overflow-hidden py-1.5 z-50">
+                    {LANGUAGES.map(lang => (
+                      <button
+                        key={lang.code}
+                        onClick={() => { setActiveLang(lang.code); setLangOpen(false); }}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors",
+                          lang.code === activeLang
+                            ? "bg-primary/10 text-primary font-semibold"
+                            : "text-foreground hover:bg-muted/60"
+                        )}
+                      >
+                        <span className="w-7 text-xs font-bold text-muted-foreground">{lang.label}</span>
+                        <span>{lang.full}</span>
+                        {lang.code === activeLang && (
+                          <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               {user ? (
                 <div className="relative">
+                  {/* Avatar-only icon button */}
                   <button
                     onClick={() => { setUserMenuOpen(!userMenuOpen); setLangOpen(false); }}
-                    className="flex items-center gap-2.5 px-3 py-1.5 rounded-full border border-border bg-card hover:bg-muted/60 transition-all duration-200"
+                    title={user.name}
+                    className={cn(
+                      "w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-bold text-white transition-all duration-200 ring-2",
+                      userMenuOpen
+                        ? "bg-primary ring-primary/40 scale-95"
+                        : "bg-primary ring-transparent hover:ring-primary/30 hover:scale-105"
+                    )}
                   >
-                    <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-[11px] font-bold text-white">
-                      {initials}
-                    </div>
-                    <span className="text-sm font-semibold text-foreground max-w-[100px] truncate">
-                      {user.name.split(" ")[0]}
-                    </span>
-                    <ChevronDown
-                      size={14}
-                      className={cn("text-muted-foreground transition-transform duration-200", userMenuOpen && "rotate-180")}
-                    />
+                    {initials}
                   </button>
 
                   {userMenuOpen && (
                     <div className="absolute right-0 top-full mt-2 w-52 bg-card border border-border rounded-[14px] shadow-xl overflow-hidden py-2 z-50">
                       <div className="px-4 py-3 border-b border-border/60">
-                        <p className="text-xs text-muted-foreground">Signed in as</p>
-                        <p className="text-sm font-semibold text-foreground truncate">{user.email}</p>
+                        <p className="text-xs font-semibold text-foreground truncate">{user.name}</p>
+                        <p className="text-xs text-muted-foreground truncate mt-0.5">{user.email}</p>
                       </div>
                       <Link
                         href={getDashboardHref()}
@@ -198,36 +248,6 @@ export function Header({ user }: HeaderProps) {
                   </Link>
                 </>
               )}
-
-              {/* Language switcher */}
-              <div className="relative">
-                <button
-                  onClick={() => { setLangOpen(!langOpen); setUserMenuOpen(false); }}
-                  className="flex items-center gap-1.5 h-9 px-3 rounded-full border border-border bg-card hover:bg-muted/60 text-sm font-semibold text-foreground transition-all duration-200"
-                >
-                  <span className="text-xs font-bold tracking-wide">{currentLang.label}</span>
-                  <ChevronDown size={12} className={cn("text-muted-foreground transition-transform duration-200", langOpen && "rotate-180")} />
-                </button>
-                {langOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-40 bg-card border border-border rounded-[14px] shadow-xl overflow-hidden py-1.5 z-50">
-                    {LANGUAGES.map(lang => (
-                      <button
-                        key={lang.code}
-                        onClick={() => { setActiveLang(lang.code); setLangOpen(false); }}
-                        className={cn(
-                          "w-full flex items-center justify-between px-4 py-2 text-sm transition-colors",
-                          lang.code === activeLang
-                            ? "bg-primary/10 text-primary font-semibold"
-                            : "text-foreground hover:bg-muted/60"
-                        )}
-                      >
-                        <span>{lang.full}</span>
-                        <span className="text-xs font-bold text-muted-foreground">{lang.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
             </div>
 
             {/* ── Mobile toggle ── */}

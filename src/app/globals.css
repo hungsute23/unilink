@@ -137,7 +137,7 @@
   .ns-card {
     background-color: #f9fcfe;
     border: 1px solid #eff2f6;
-    @apply rounded-[18px] shadow-none
+    @apply rounded-2xl shadow-none
       transition-all duration-300
       hover:shadow-[0_8px_32px_0_rgba(16,24,40,0.10)] hover:-translate-y-0.5;
   }

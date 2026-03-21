@@ -49,8 +49,8 @@ const SERVICES = [
     tagColor: "bg-amber-500/10 text-amber-600 border-amber-500/20",
     accent: "from-amber-500 to-orange-500",
     price: "From $19/mo",
-    desc: "Mandarin Chinese courses tailored for students — survival Chinese, academic reading, and HSK exam prep with certified tutors.",
-    features: ["Survival Mandarin", "Academic reading", "HSK 1–6 prep", "Live + recorded lessons"],
+    desc: "Mandarin Chinese courses tailored for students — survival Chinese, academic reading, and TOCFL exam prep with certified tutors.",
+    features: ["Survival Mandarin", "Academic reading", "TOCFL A1–C2 prep", "Live + recorded lessons"],
   },
   {
     icon: Plane,

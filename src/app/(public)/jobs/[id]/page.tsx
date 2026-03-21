@@ -11,6 +11,7 @@ import {
   FileBadge, ArrowLeft, ExternalLink, Star, Users,
 } from "lucide-react";
 import { SaveButton } from "@/components/shared/SaveButton";
+import { SafeLogo } from "@/components/shared/SafeLogo";
 import { ApplyModal } from "@/components/student/ApplyModal";
 import { cn } from "@/lib/utils";
 
@@ -100,12 +101,8 @@ export default async function JobDetailPage({ params }: Props) {
 
           <div className="flex flex-col md:flex-row gap-8 items-start">
             {/* Company logo */}
-            <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-card border border-border shadow-sm flex items-center justify-center shrink-0 overflow-hidden">
-              {business?.logoUrl ? (
-                <img src={business.logoUrl} alt={business.companyName} className="w-full h-full object-contain p-2" />
-              ) : (
-                <Building2 className="w-10 h-10 text-primary/40" />
-              )}
+            <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-card border border-border shadow-sm shrink-0 overflow-hidden">
+              <SafeLogo src={business?.logoUrl} alt={business?.companyName} size={96} fallback="business" />
             </div>
 
             {/* Title block */}
@@ -184,12 +181,8 @@ export default async function JobDetailPage({ params }: Props) {
             {business && (
               <section className="p-6 rounded-2xl bg-card border border-border">
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-muted/50 border border-border flex items-center justify-center overflow-hidden shrink-0">
-                    {business.logoUrl ? (
-                      <img src={business.logoUrl} alt={business.companyName} className="w-full h-full object-contain p-1.5" />
-                    ) : (
-                      <Building2 size={20} className="text-muted-foreground" />
-                    )}
+                  <div className="w-12 h-12 rounded-xl bg-muted/50 border border-border overflow-hidden shrink-0">
+                    <SafeLogo src={business.logoUrl} alt={business.companyName} size={48} fallback="business" />
                   </div>
                   <div>
                     <p className="font-bold text-foreground">{business.companyName}</p>
@@ -396,12 +389,8 @@ export default async function JobDetailPage({ params }: Props) {
               <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
                 <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">About the Company</h4>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-muted/50 border border-border flex items-center justify-center shrink-0 overflow-hidden">
-                    {business.logoUrl ? (
-                      <img src={business.logoUrl} alt="" className="w-full h-full object-contain p-1" />
-                    ) : (
-                      <Building2 size={16} className="text-muted-foreground" />
-                    )}
+                  <div className="w-10 h-10 rounded-xl bg-muted/50 border border-border overflow-hidden shrink-0">
+                    <SafeLogo src={business.logoUrl} alt={business.companyName} size={40} fallback="business" />
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-foreground leading-tight">{business.companyName}</p>

@@ -43,7 +43,7 @@ export function PostCard({ post, featured = false, className }: PostCardProps) {
   /* ── Featured (hero) card ── */
   if (featured) {
     return (
-      <article className={cn("bg-[#f9fcfe] dark:bg-white/5 border border-[#eff2f6] dark:border-white/10 rounded-[18px] overflow-hidden", className)}>
+      <article className={cn("bg-[#f9fcfe] dark:bg-white/5 border border-[#eff2f6] dark:border-white/10 rounded-2xl overflow-hidden", className)}>
         {/* Colour bar */}
         <div className={`h-1.5 w-full bg-gradient-to-r ${meta.bar}`} />
 
@@ -110,7 +110,7 @@ export function PostCard({ post, featured = false, className }: PostCardProps) {
 
   /* ── Regular card ── */
   return (
-    <article className={cn("bg-[#f9fcfe] dark:bg-white/5 border border-[#eff2f6] dark:border-white/10 rounded-[18px] overflow-hidden flex flex-col h-full hover:border-gray-200 dark:hover:border-white/20 hover:shadow-sm transition-all", className)}>
+    <article className={cn("bg-[#f9fcfe] dark:bg-white/5 border border-[#eff2f6] dark:border-white/10 rounded-2xl overflow-hidden flex flex-col h-full hover:border-gray-200 dark:hover:border-white/20 hover:shadow-sm transition-all", className)}>
       {/* Colour bar */}
       <div className={`h-1 w-full bg-gradient-to-r ${meta.bar}`} />
 

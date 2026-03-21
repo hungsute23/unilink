@@ -1,23 +1,29 @@
 "use server";
 
 import { createAdminClient } from "@/lib/appwrite/server";
-import { Query } from "node-appwrite";
+import { ID, Query } from "node-appwrite";
 
 const DB_ID = process.env.APPWRITE_DATABASE_ID!;
+
+interface ScholarshipData {
+  name: string;
+  description?: string;
+  amount?: number | string;
+  deadline?: string;
+  source?: string;
+  coversTuition?: boolean;
+  coversStipend?: boolean;
+  coversDorm?: boolean;
+  isActive?: boolean;
+  schoolId?: string;
+}
 
 export async function getPlatformStats() {
   try {
     const { users, databases } = await createAdminClient();
 
-    // Fetch counts for all major collections
-    const [
-      usersList,
-      schoolsList,
-      scholarshipsList,
-      jobsList,
-      applicationsList
-    ] = await Promise.all([
-      users.list([Query.limit(1)]), // Total users count
+    const [usersList, schoolsList, scholarshipsList, jobsList, applicationsList] = await Promise.all([
+      users.list([Query.limit(1)]),
       databases.listDocuments(DB_ID, "Schools", [Query.limit(1)]),
       databases.listDocuments(DB_ID, "Scholarships", [Query.limit(1)]),
       databases.listDocuments(DB_ID, "Jobs", [Query.limit(1)]),
@@ -32,11 +38,11 @@ export async function getPlatformStats() {
         totalScholarships: scholarshipsList.total,
         totalJobs: jobsList.total,
         totalApplications: applicationsList.total,
-      }
+      },
     };
-  } catch (error: any) {
-    console.error("Error fetching platform stats:", error);
-    return { success: false, error: error.message };
+  } catch (error) {
+    console.error("[getPlatformStats]", error);
+    return { success: false, error: "Failed to fetch platform stats." };
   }
 }
 
@@ -44,107 +50,95 @@ export async function getAllUsers(limit = 25, offset = 0, search?: string) {
   try {
     const { users } = await createAdminClient();
     const queries = [Query.limit(limit), Query.offset(offset)];
-    
+
     if (search) {
-      queries.push(Query.search("name", search));
-      // Note: Appwrite only supports search on certain attributes.
-      // If name doesn't work, we might need a different approach.
+      // Sanitize: trim + cap length to prevent oversized queries
+      const sanitized = search.trim().slice(0, 100);
+      if (sanitized) queries.push(Query.search("name", sanitized));
     }
 
     const response = await users.list(queries);
-    return {
-      success: true,
-      users: response.users,
-      total: response.total
-    };
-  } catch (error: any) {
-    console.error("Error listing users:", error);
-    return { success: false, error: error.message };
+    return { success: true, users: response.users, total: response.total };
+  } catch (error) {
+    console.error("[getAllUsers]", error);
+    return { success: false, error: "Failed to fetch users." };
   }
 }
 
 export async function toggleUserStatus(userId: string, shouldBan: boolean) {
   try {
     const { users } = await createAdminClient();
-    await users.updateStatus(userId, !shouldBan); // Appwrite status is boolean 'active'
+    await users.updateStatus(userId, !shouldBan);
     return { success: true };
-  } catch (error: any) {
-    console.error("Error toggling user status:", error);
-    return { success: false, error: error.message };
+  } catch (error) {
+    console.error("[toggleUserStatus]", error);
+    return { success: false, error: "Failed to update user status." };
   }
 }
 
 export async function getPartners(collectionName: "Schools" | "Businesses", limit = 25, offset = 0) {
   try {
     const { databases } = await createAdminClient();
-    const response = await databases.listDocuments(
-      DB_ID,
-      collectionName,
-      [Query.limit(limit), Query.offset(offset), Query.orderDesc("$createdAt")]
-    );
-    return {
-      success: true,
-      documents: response.documents,
-      total: response.total
-    };
-  } catch (error: any) {
-    console.error(`Error fetching ${collectionName}:`, error);
-    return { success: false, error: error.message };
+    const response = await databases.listDocuments(DB_ID, collectionName, [
+      Query.limit(limit),
+      Query.offset(offset),
+      Query.orderDesc("$createdAt"),
+    ]);
+    return { success: true, documents: response.documents, total: response.total };
+  } catch (error) {
+    console.error(`[getPartners:${collectionName}]`, error);
+    return { success: false, error: "Failed to fetch partners." };
   }
 }
 
 export async function updatePartnerStatus(
-  collectionName: "Schools" | "Businesses", 
-  docId: string, 
+  collectionName: "Schools" | "Businesses",
+  docId: string,
   isApproved: boolean
 ) {
   try {
     const { databases } = await createAdminClient();
-    await databases.updateDocument(
-      DB_ID,
-      collectionName,
-      docId,
-      { isApproved }
-    );
+    await databases.updateDocument(DB_ID, collectionName, docId, { isApproved });
     return { success: true };
-  } catch (error: any) {
-    console.error(`Error updating status for ${docId}:`, error);
-    return { success: false, error: error.message };
+  } catch (error) {
+    console.error(`[updatePartnerStatus:${docId}]`, error);
+    return { success: false, error: "Failed to update partner status." };
   }
 }
 
 export async function getGlobalScholarships(limit = 25, offset = 0) {
   try {
     const { databases } = await createAdminClient();
-    const response = await databases.listDocuments(
-      DB_ID,
-      "Scholarships",
-      [Query.limit(limit), Query.offset(offset), Query.orderDesc("$createdAt")]
-    );
-    return {
-      success: true,
-      documents: response.documents,
-      total: response.total
-    };
-  } catch (error: any) {
-    console.error("Error fetching scholarships:", error);
-    return { success: false, error: error.message };
+    const response = await databases.listDocuments(DB_ID, "Scholarships", [
+      Query.limit(limit),
+      Query.offset(offset),
+      Query.orderDesc("$createdAt"),
+    ]);
+    return { success: true, documents: response.documents, total: response.total };
+  } catch (error) {
+    console.error("[getGlobalScholarships]", error);
+    return { success: false, error: "Failed to fetch scholarships." };
   }
 }
 
-export async function createGlobalScholarship(data: any) {
+export async function createGlobalScholarship(data: ScholarshipData) {
   try {
     const { databases } = await createAdminClient();
-    const doc = await databases.createDocument(
-      DB_ID,
-      "Scholarships",
-      "unique()",
-      { ...data, isApproved: true } // Admin created items are auto-approved
-    );
+
+    if (!data.name || data.name.trim().length === 0)
+      return { success: false, error: "Scholarship name is required." };
+    if (data.name.length > 200)
+      return { success: false, error: "Scholarship name too long (max 200 characters)." };
+
+    const doc = await databases.createDocument(DB_ID, "Scholarships", ID.unique(), {
+      ...data,
+      name: data.name.trim(),
+      isApproved: true,
+    });
     return { success: true, document: doc };
-  } catch (error: any) {
-    console.error("Error creating scholarship:", error);
-    return { success: false, error: error.message };
+  } catch (error) {
+    console.error("[createGlobalScholarship]", error);
+    return { success: false, error: "Failed to create scholarship." };
   }
 }
 
@@ -153,19 +147,21 @@ export async function getSystemConfigs() {
     const { databases } = await createAdminClient();
     const response = await databases.listDocuments(DB_ID, "System_Configs");
     return { success: true, configs: response.documents };
-  } catch (error: any) {
-    console.error("Error fetching configs:", error);
-    return { success: false, error: error.message };
+  } catch (error) {
+    console.error("[getSystemConfigs]", error);
+    return { success: false, error: "Failed to fetch system configs." };
   }
 }
 
 export async function updateSystemConfig(configId: string, value: string) {
   try {
     const { databases } = await createAdminClient();
-    await databases.updateDocument(DB_ID, "System_Configs", configId, { value });
+    await databases.updateDocument(DB_ID, "System_Configs", configId, {
+      value: value.slice(0, 1000),
+    });
     return { success: true };
-  } catch (error: any) {
-    console.error("Error updating config:", error);
-    return { success: false, error: error.message };
+  } catch (error) {
+    console.error("[updateSystemConfig]", error);
+    return { success: false, error: "Failed to update config." };
   }
 }

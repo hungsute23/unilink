@@ -36,18 +36,14 @@ export function JobCard({
 
   return (
     <div className={cn("ns-card p-6 flex flex-col gap-5", className)}>
-      {/* Header: icon left, title + company + save right */}
+      {/* Header: icon left, company + title + save right */}
       <div className="flex items-start gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0">
+        <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0">
           <Building2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
         </div>
         <div className="flex-1 min-w-0 space-y-1 pt-0.5">
           <div className="flex items-start justify-between gap-2">
-            <Link href={`/jobs/${id}`}>
-              <h3 className="text-base font-bold text-foreground leading-snug line-clamp-2 hover:text-primary transition-colors">
-                {title}
-              </h3>
-            </Link>
+            <p className="text-base font-bold text-foreground leading-snug line-clamp-1">{companyName}</p>
             <SaveButton
               variant="icon"
               itemId={id}
@@ -57,7 +53,11 @@ export function JobCard({
               className="text-muted-foreground/40 hover:text-primary shrink-0 -mt-0.5"
             />
           </div>
-          <p className="text-sm font-semibold text-muted-foreground">{companyName}</p>
+          <Link href={`/jobs/${id}`}>
+            <p className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors line-clamp-2">
+              {title}
+            </p>
+          </Link>
         </div>
       </div>
 

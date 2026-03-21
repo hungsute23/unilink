@@ -12,7 +12,10 @@
       "Bash(git remote:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(npm install:*)",
+      "Bash(node -e \"const {GoogleGenerativeAI} = require\\(''@google/generative-ai''\\); const g = new GoogleGenerativeAI\\(''AIzaSyC1okWL5NXZgv_8TaYuLVUTnNMLL-5KJfE''\\); const m = g.getGenerativeModel\\({model:''gemini-2.0-flash''}\\); m.generateContent\\(''hello''\\).then\\(r => console.log\\(r.response.text\\(\\)\\)\\).catch\\(e => console.error\\(e.message\\)\\)\")",
+      "Bash(node -e \"const {GoogleGenerativeAI} = require\\(''@google/generative-ai''\\); const g = new GoogleGenerativeAI\\(''AIzaSyC1okWL5NXZgv_8TaYuLVUTnNMLL-5KJfE''\\); const m = g.getGenerativeModel\\({model:''gemini-2.0-flash-lite''}\\); m.generateContent\\(''hello''\\).then\\(r => console.log\\(r.response.text\\(\\)\\)\\).catch\\(e => console.error\\(e.message\\)\\)\")"
     ]
   }
 }

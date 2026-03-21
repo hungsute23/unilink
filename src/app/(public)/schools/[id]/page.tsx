@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SaveButton } from "@/components/shared/SaveButton";
+import { SafeLogo } from "@/components/shared/SafeLogo";
 import { ApplyModal } from "@/components/student/ApplyModal";
 import { cn } from "@/lib/utils";
 
@@ -95,12 +96,8 @@ export default async function SchoolDetailPage({ params }: Props) {
 
           <div className="flex flex-col md:flex-row items-start gap-8">
             {/* Logo */}
-            <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-card border border-border shadow-sm flex items-center justify-center shrink-0 overflow-hidden">
-              {school.logoUrl ? (
-                <img src={school.logoUrl} alt={school.schoolName} className="w-full h-full object-contain p-2" />
-              ) : (
-                <Building2 className="w-12 h-12 text-primary/40" />
-              )}
+            <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-card border border-border shadow-sm shrink-0 overflow-hidden">
+              <SafeLogo src={school.logoUrl} alt={school.schoolName} size={112} fallback="school" />
             </div>
 
             {/* Info */}
