@@ -50,6 +50,12 @@ export function RegisterForm() {
         return;
       }
 
+      if (res.pending) {
+        router.push("/pending-approval");
+        router.refresh();
+        return;
+      }
+
       const resRole = res.role as string;
       let target = "/";
       switch (resRole) {

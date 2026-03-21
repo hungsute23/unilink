@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getLoggedInUser } from "@/lib/appwrite/queries/auth.queries";
+import { getSchoolProfile } from "@/lib/appwrite/queries/school.queries";
 import { redirect } from "next/navigation";
 import { Sidebar, NavItem } from "@/components/dashboard/Sidebar";
 import { Suspense } from "react";
@@ -12,11 +13,12 @@ export const metadata: Metadata = {
 };
 
 const schoolNavItems: NavItem[] = [
-  { label: "Overview",    href: "/school-portal",              icon: "LayoutDashboard" },
-  { label: "Terms",       href: "/school-portal/terms",        icon: "CalendarDays" },
-  { label: "Programs",    href: "/school-portal/programs",     icon: "BookOpen" },
-  { label: "Scholarships",href: "/school-portal/scholarships", icon: "Award" },
-  { label: "Applications",href: "/school-portal/applications", icon: "Users" },
+  { label: "Overview",     href: "/school-portal",              icon: "LayoutDashboard" },
+  { label: "Terms",        href: "/school-portal/terms",        icon: "CalendarDays" },
+  { label: "Programs",     href: "/school-portal/programs",     icon: "BookOpen" },
+  { label: "Scholarships", href: "/school-portal/scholarships", icon: "Award" },
+  { label: "Applications", href: "/school-portal/applications", icon: "Users" },
+  { label: "School Profile",href: "/school-portal/profile",    icon: "GraduationCap" },
 ];
 
 export default async function SchoolPortalLayout({
@@ -24,6 +26,9 @@ export default async function SchoolPortalLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   const user = await getLoggedInUser();
   if (!user) redirect("/login");
+
+  const school = await getSchoolProfile(user.$id);
+  if (!school || school.isApproved === false) redirect("/pending-approval");
 
   return (
     <div className="flex min-h-svh bg-[#f0f2f8] dark:bg-[#0d0f1c]">

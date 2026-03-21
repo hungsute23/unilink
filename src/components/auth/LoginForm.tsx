@@ -34,6 +34,12 @@ export function LoginForm() {
         return;
       }
 
+      if (res.pending) {
+        router.push("/pending-approval");
+        router.refresh();
+        return;
+      }
+
       const role = res.role as string;
       let target = "/";
       switch (role) {

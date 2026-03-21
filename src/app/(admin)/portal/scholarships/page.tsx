@@ -1,9 +1,8 @@
 import { getGlobalScholarships } from "@/lib/appwrite/actions/admin.actions";
-import { 
-  GraduationCap, 
-  Plus, 
-  Search,
-  Filter,
+import { AdminSearchBar } from "@/components/admin/AdminSearchBar";
+import {
+  GraduationCap,
+  Plus,
   AlertCircle,
   Calendar,
   Building,
@@ -13,7 +12,6 @@ import {
   MoreVertical
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { 
   Dialog, 
@@ -41,8 +39,11 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 
-export default async function ScholarshipsManagementPage() {
-  const result = await getGlobalScholarships();
+interface Props { searchParams: Promise<{ q?: string }> }
+
+export default async function ScholarshipsManagementPage({ searchParams }: Props) {
+  const { q } = await searchParams;
+  const result = await getGlobalScholarships(50, 0, q);
   
   if (!result.success) {
     return (
@@ -71,17 +72,16 @@ export default async function ScholarshipsManagementPage() {
           <p className="text-muted-foreground font-medium mt-2 max-w-xl">
             Centralized control for government (MOE, ICDF) and school-specific funding. Manage visibility, deadlines, and global eligibility.
           </p>
+          {q && (
+            <p className="text-sm text-muted-foreground mt-1">
+              Showing <span className="font-semibold text-foreground">{scholarships.length}</span> result{scholarships.length !== 1 ? "s" : ""} for &quot;{q}&quot;
+            </p>
+          )}
         </div>
-        
+
         <div className="flex items-center gap-3">
-          <div className="relative group w-64 hidden xl:block">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-            <Input 
-              placeholder="Search programs..." 
-              className="pl-11 h-14 bg-muted/30 border-none rounded-2xl focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
-          
+          <AdminSearchBar placeholder="Search programs..." />
+
           <Dialog>
             <DialogTrigger asChild>
               <Button className="h-14 px-8 rounded-2xl font-black bg-primary shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all gap-2">

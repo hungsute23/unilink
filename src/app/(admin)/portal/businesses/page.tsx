@@ -1,17 +1,15 @@
 import { getPartners } from "@/lib/appwrite/actions/admin.actions";
 import { ModerationTable } from "@/components/admin/ModerationTable";
-import { 
-  Building2, 
-  Search,
-  Filter,
-  AlertCircle
-} from "lucide-react";
+import { AdminSearchBar } from "@/components/admin/AdminSearchBar";
+import { Building2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
-export default async function BusinessesModerationPage() {
-  const result = await getPartners("Businesses");
-  
+interface Props { searchParams: Promise<{ q?: string; status?: string }> }
+
+export default async function BusinessesModerationPage({ searchParams }: Props) {
+  const { q, status } = await searchParams;
+  const result = await getPartners("Businesses", 50, 0, q, (status as any) ?? "all");
+
   if (!result.success) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] glass-card border-none rounded-3xl p-12 text-center">
@@ -24,13 +22,8 @@ export default async function BusinessesModerationPage() {
   }
 
   const partners = JSON.parse(JSON.stringify(result.documents!)).map((doc: any) => ({
-    $id: doc.$id,
-    isApproved: doc.isApproved,
-    companyName: doc.companyName,
-    contactEmail: doc.contactEmail,
-    city: doc.city,
-    website: doc.website,
-    $createdAt: doc.$createdAt
+    $id: doc.$id, isApproved: doc.isApproved, companyName: doc.companyName,
+    contactEmail: doc.contactEmail, city: doc.city, website: doc.website, $createdAt: doc.$createdAt,
   }));
 
   return (
@@ -41,28 +34,18 @@ export default async function BusinessesModerationPage() {
             <Building2 className="w-4 h-4" />
             Verification Queue
           </div>
-          <h1 className="text-5xl font-black tracking-tighter text-gradient">
-            Partner Businesses
-          </h1>
+          <h1 className="text-5xl font-black tracking-tighter text-gradient">Partner Businesses</h1>
           <p className="text-muted-foreground font-medium mt-2 max-w-xl">
             Audit company partners. Approve legitimate businesses to enable job postings and internship discovery for students.
           </p>
+          {q && (
+            <p className="text-sm text-muted-foreground mt-1">
+              Showing <span className="font-semibold text-foreground">{partners.length}</span> result{partners.length !== 1 ? "s" : ""} for &quot;{q}&quot;
+            </p>
+          )}
         </div>
-        
-        <div className="flex items-center gap-3">
-          <div className="relative group w-64">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-            <Input 
-              placeholder="Search companies..." 
-              className="pl-11 h-12 bg-muted/30 border-none rounded-2xl focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
-          <Button variant="outline" className="h-12 w-12 rounded-2xl p-0 border-primary/20">
-            <Filter className="w-4 h-4" />
-          </Button>
-        </div>
+        <AdminSearchBar placeholder="Search companies..." showStatusFilter />
       </div>
-
       <ModerationTable partners={partners} type="Businesses" />
     </div>
   );

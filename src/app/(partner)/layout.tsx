@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getLoggedInUser } from "@/lib/appwrite/queries/auth.queries";
+import { getBusinessProfile } from "@/lib/appwrite/queries/business.queries";
 import { redirect } from "next/navigation";
 import { Sidebar, NavItem } from "@/components/dashboard/Sidebar";
 
@@ -11,9 +12,10 @@ export const metadata: Metadata = {
 };
 
 const partnerNavItems: NavItem[] = [
-  { label: "Overview", href: "/dashboard", icon: "LayoutDashboard" },
-  { label: "Job Postings", href: "/dashboard/jobs", icon: "Briefcase" },
+  { label: "Overview",     href: "/dashboard",              icon: "LayoutDashboard" },
+  { label: "Job Postings", href: "/dashboard/jobs",         icon: "Briefcase" },
   { label: "Applications", href: "/dashboard/applications", icon: "Users" },
+  { label: "Company Profile", href: "/dashboard/profile",  icon: "Building2" },
 ];
 
 export default async function PartnerLayout({
@@ -21,6 +23,9 @@ export default async function PartnerLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   const user = await getLoggedInUser();
   if (!user) redirect("/login");
+
+  const business = await getBusinessProfile(user.$id);
+  if (!business || business.isApproved === false) redirect("/pending-approval");
 
   const userData = {
     name: user.name,

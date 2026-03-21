@@ -60,10 +60,12 @@ export default async function DashboardPage() {
     );
   }
 
-  const [jobs, applications] = await Promise.all([
+  const [rawJobs, rawApplications] = await Promise.all([
     getBusinessJobs(business.$id),
     getBusinessApplications(business.$id),
   ]);
+  const jobs         = JSON.parse(JSON.stringify(rawJobs));
+  const applications = JSON.parse(JSON.stringify(rawApplications));
 
   const activeJobs    = jobs.filter((j: any) => j.isActive).length;
   const pendingApps   = applications.filter((a: any) => a.status === "pending").length;

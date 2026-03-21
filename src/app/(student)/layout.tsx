@@ -17,6 +17,7 @@ const studentNavItems: NavItem[] = [
   { label: "Saved Items",       href: "/student-portal/saved",        icon: "Bookmark" },
   { label: "Community Posts",   href: "/student-portal/community",    icon: "PenSquare" },
   { label: "Profile",           href: "/student-portal/profile",      icon: "UserCog" },
+  { label: "Settings",          href: "/student-portal/settings",     icon: "Settings" },
 ];
 
 export default async function StudentPortalLayout({

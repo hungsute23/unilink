@@ -76,14 +76,24 @@ export async function toggleUserStatus(userId: string, shouldBan: boolean) {
   }
 }
 
-export async function getPartners(collectionName: "Schools" | "Businesses", limit = 25, offset = 0) {
+export async function getPartners(
+  collectionName: "Schools" | "Businesses",
+  limit = 50,
+  offset = 0,
+  search?: string,
+  status?: "all" | "approved" | "pending"
+) {
   try {
     const { databases } = await createAdminClient();
-    const response = await databases.listDocuments(DB_ID, collectionName, [
-      Query.limit(limit),
-      Query.offset(offset),
-      Query.orderDesc("$createdAt"),
-    ]);
+    const queries = [Query.limit(limit), Query.offset(offset), Query.orderDesc("$createdAt")];
+    if (search) {
+      const s = search.trim().slice(0, 100);
+      const nameField = collectionName === "Schools" ? "schoolName" : "companyName";
+      if (s) queries.push(Query.search(nameField, s));
+    }
+    if (status === "approved") queries.push(Query.equal("isApproved", true));
+    if (status === "pending")  queries.push(Query.equal("isApproved", false));
+    const response = await databases.listDocuments(DB_ID, collectionName, queries);
     return { success: true, documents: response.documents, total: response.total };
   } catch (error) {
     console.error(`[getPartners:${collectionName}]`, error);
@@ -106,14 +116,15 @@ export async function updatePartnerStatus(
   }
 }
 
-export async function getGlobalScholarships(limit = 25, offset = 0) {
+export async function getGlobalScholarships(limit = 50, offset = 0, search?: string) {
   try {
     const { databases } = await createAdminClient();
-    const response = await databases.listDocuments(DB_ID, "Scholarships", [
-      Query.limit(limit),
-      Query.offset(offset),
-      Query.orderDesc("$createdAt"),
-    ]);
+    const queries = [Query.limit(limit), Query.offset(offset), Query.orderDesc("$createdAt")];
+    if (search) {
+      const s = search.trim().slice(0, 100);
+      if (s) queries.push(Query.search("name", s));
+    }
+    const response = await databases.listDocuments(DB_ID, "Scholarships", queries);
     return { success: true, documents: response.documents, total: response.total };
   } catch (error) {
     console.error("[getGlobalScholarships]", error);

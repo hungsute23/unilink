@@ -31,7 +31,7 @@ export async function updateBusinessProfile(formData: FormData) {
     const businessId = formData.get("businessId") as string;
     if (!businessId) return { success: false, error: "Business ID is required." };
 
-    const name         = (formData.get("name") as string)?.trim();
+    const companyName  = (formData.get("companyName") as string)?.trim();
     const industry     = (formData.get("industry") as string)?.trim();
     const city         = (formData.get("city") as string)?.trim();
     const website      = (formData.get("website") as string)?.trim();
@@ -40,7 +40,7 @@ export async function updateBusinessProfile(formData: FormData) {
     const logoFile     = formData.get("logo") as File;
 
     // Validate inputs
-    if (!name || name.length > 200)
+    if (!companyName || companyName.length > 200)
       return { success: false, error: "Business name must be 1–200 characters." };
     if (description && description.length > 2000)
       return { success: false, error: "Description too long (max 2000 characters)." };
@@ -67,7 +67,7 @@ export async function updateBusinessProfile(formData: FormData) {
     }
 
     await databases.updateDocument(DATABASE_ID, BUSINESS_COLLECTION_ID, businessId, {
-      name, industry, city, website, contactEmail, description, logoUrl,
+      companyName, industry, city, website, contactEmail, description, logoUrl,
     });
 
     revalidatePath("/dashboard");

@@ -33,7 +33,19 @@ export async function loginWithEmail(formData: FormData) {
     const user = await users.get(session.userId);
     const role = (user.prefs as any)?.role || "student";
 
-    return { success: true, role };
+    // For school/business, check if approved
+    let pending = false;
+    if (role === "school" || role === "business") {
+      const { databases } = await createAdminClient();
+      const collection = role === "school" ? "Schools" : "Businesses";
+      const field = role === "school" ? "ownerId" : "ownerId";
+      const { Query } = await import("node-appwrite");
+      const docs = await databases.listDocuments(DB_ID, collection, [Query.equal(field, session.userId), Query.limit(1)]);
+      const profile = docs.documents[0];
+      pending = !profile || profile.isApproved === false;
+    }
+
+    return { success: true, role, pending };
   } catch (error) {
     console.error("[loginWithEmail]", error);
     return { error: "Email hoặc mật khẩu không đúng." };
@@ -68,14 +80,16 @@ export async function registerUser(formData: FormData) {
     } else if (role === "school") {
       await databases.createDocument(DB_ID, "Schools", ID.unique(), {
         ownerId: userAccount.$id,
-        schoolName: fullName, // using fullName as schoolName
+        schoolName: fullName,
         contactEmail: email,
+        isApproved: false,
       });
     } else if (role === "business") {
       await databases.createDocument(DB_ID, "Businesses", ID.unique(), {
         ownerId: userAccount.$id,
-        companyName: fullName, // using fullName as companyName
-        industry: "Khác", // placeholder
+        companyName: fullName,
+        contactEmail: email,
+        isApproved: false,
       });
     }
 
@@ -90,7 +104,31 @@ export async function registerUser(formData: FormData) {
       expires: new Date(session.expire),
     });
 
-    return { success: true, role };
+    const pending = role === "school" || role === "business";
+    return { success: true, role, pending };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   } catch (error) {
     console.error("[registerUser]", error);
     return { error: "Đăng ký thất bại. Email có thể đã được sử dụng." };
