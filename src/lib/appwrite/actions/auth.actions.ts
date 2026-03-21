@@ -175,3 +175,14 @@ export async function logoutUser() {
     return { error: "Đăng xuất thất bại" };
   }
 }
+
+
+export async function getSessionStatus(): Promise<{ loggedIn: boolean; name: string | null }> {
+  try {
+    const { account } = await createSessionClient();
+    const user = await account.get();
+    return { loggedIn: true, name: user.name ?? null };
+  } catch {
+    return { loggedIn: false, name: null };
+  }
+}

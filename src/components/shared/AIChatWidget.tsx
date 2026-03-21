@@ -7,6 +7,8 @@ import {
   RotateCcw, GraduationCap, ShieldAlert, Clock,
 } from "lucide-react";
 import { sendChatMessage } from "@/lib/appwrite/actions/ai-chat.actions";
+import { getSessionStatus } from "@/lib/appwrite/actions/auth.actions";
+import Link from "next/link";
 
 const OFF_TOPIC_SUGGESTIONS = [
   "Học bổng du học Đài Loan",
@@ -164,6 +166,48 @@ function SystemNotice({ content, icon }: { content: string; icon: "shield" | "cl
   );
 }
 
+// ── Auth wall ─────────────────────────────────────────────────────────────────
+function AuthWall() {
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center px-6 py-8 text-center">
+      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-violet-500/20 flex items-center justify-center mb-4">
+        <Sparkles size={28} className="text-primary" />
+      </div>
+      <h3 className="text-base font-bold text-foreground mb-2">Tư vấn AI miễn phí</h3>
+      <p className="text-sm text-muted-foreground leading-relaxed mb-6">
+        Đăng nhập để trò chuyện với UniLink AI — tư vấn du học Đài Loan 24/7, miễn phí hoàn toàn.
+      </p>
+      <div className="w-full space-y-2.5 mb-6">
+        {[
+          "Tìm trường & học bổng phù hợp",
+          "Tư vấn visa & thủ tục nhập học",
+          "Cơ hội việc làm cho sinh viên",
+        ].map((item) => (
+          <div key={item} className="flex items-center gap-2.5 text-sm text-left">
+            <div className="w-4 h-4 rounded-full bg-emerald-500/15 flex items-center justify-center shrink-0">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            </div>
+            <span className="text-muted-foreground">{item}</span>
+          </div>
+        ))}
+      </div>
+      <Link
+        href="/register"
+        className="w-full flex items-center justify-center gap-2 h-11 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors mb-2"
+      >
+        <GraduationCap size={15} />
+        Tạo tài khoản miễn phí
+      </Link>
+      <Link
+        href="/login"
+        className="w-full flex items-center justify-center h-10 rounded-xl border border-border text-sm font-medium text-foreground hover:bg-muted/60 transition-colors"
+      >
+        Đã có tài khoản? Đăng nhập
+      </Link>
+    </div>
+  );
+}
+
 // ── Main widget ───────────────────────────────────────────────────────────────
 export function AIChatWidget() {
   const [open, setOpen]           = useState(false);
@@ -173,19 +217,31 @@ export function AIChatWidget() {
   const [isTyping, setIsTyping]   = useState(false);
   const [unread, setUnread]       = useState(0);
   const [rateLimitMsg, setRateLimitMsg] = useState<string | null>(null);
+  const [authChecked, setAuthChecked]   = useState(false);
+  const [isLoggedIn, setIsLoggedIn]     = useState(false);
 
   // Timestamps of sent messages for rate limiting
   const sentTimestamps = useRef<number[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef       = useRef<HTMLTextAreaElement>(null);
 
+  // Check auth once on first open
+  useEffect(() => {
+    if (open && !authChecked) {
+      getSessionStatus().then(({ loggedIn }) => {
+        setIsLoggedIn(loggedIn);
+        setAuthChecked(true);
+      });
+    }
+  }, [open, authChecked]);
+
   useEffect(() => {
     if (open && !minimized) {
       setUnread(0);
       setRateLimitMsg(null);
-      setTimeout(() => inputRef.current?.focus(), 100);
+      if (isLoggedIn) setTimeout(() => inputRef.current?.focus(), 100);
     }
-  }, [open, minimized]);
+  }, [open, minimized, isLoggedIn]);
 
   useEffect(() => {
     if (open && !minimized)
@@ -321,6 +377,16 @@ export function AIChatWidget() {
             </div>
           </div>
 
+          {/* Auth wall or messages */}
+          {authChecked && !isLoggedIn ? <AuthWall /> : !authChecked && open ? (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span className="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                Đang kiểm tra...
+              </div>
+            </div>
+          ) : (
+          <>
           {/* Messages */}
           <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 scroll-smooth">
             {messages.map((msg) => {
@@ -418,6 +484,8 @@ export function AIChatWidget() {
               UniLink AI · Monstudio
             </p>
           </div>
+          </>
+          )}
         </div>
       </div>
 
