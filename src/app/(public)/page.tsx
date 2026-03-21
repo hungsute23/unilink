@@ -170,7 +170,7 @@ export default async function HomePage() {
               </div>
               <div className="w-px h-4 bg-border" />
               <span className="text-muted-foreground font-medium flex items-center gap-1.5">
-                <Shield size={14} className="text-emerald-500" /> Official Appwrite Partner
+                <Shield size={14} className="text-emerald-500" /> Monchines
               </span>
             </div>
 
@@ -731,7 +731,7 @@ export default async function HomePage() {
             {[
               { title: "Platform",   links: [["Universities", "/schools"], ["Scholarships", "/scholarships"], ["Job Board", "/jobs"], ["Community", "/community"]] },
               { title: "Resources",  links: [["Study Guide", "/blog"], ["Visa Procedures", "/visa"], ["About Us", "/about"]] },
-              { title: "Network",    links: [["Taipei, Taiwan", "#"], ["Official Appwrite Partner", "#"]] },
+              { title: "Network",    links: [["Taipei, Taiwan", "#"], ["Monstudio", "#"]] },
             ].map((col) => (
               <div key={col.title} className="space-y-5">
                 <h5 className="text-xs font-bold uppercase tracking-widest text-background/30">{col.title}</h5>
@@ -746,7 +746,7 @@ export default async function HomePage() {
             ))}
           </div>
           <div className="pt-8 border-t border-background/10 flex flex-col md:flex-row justify-between items-center text-background/25 text-xs gap-4">
-            <span>© 2025 UniLink Global Partners. Built for Taiwan Tech Hub.</span>
+            <span>© 2025 UniLink. Developed by Monstudio.</span>
             <div className="flex gap-8">
               <span className="text-primary/60">AI Engine v1.0</span>
               <span>UTC+8 Taipei</span>
