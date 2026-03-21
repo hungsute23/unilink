@@ -731,7 +731,7 @@ export default async function HomePage() {
             {[
               { title: "Platform",   links: [["Universities", "/schools"], ["Scholarships", "/scholarships"], ["Job Board", "/jobs"], ["Community", "/community"]] },
               { title: "Resources",  links: [["Study Guide", "/blog"], ["Visa Procedures", "/visa"], ["About Us", "/about"]] },
-              { title: "Network",    links: [["Taipei, Taiwan", "#"], ["Monstudio", "#"]] },
+              { title: "Network",    links: [["Taipei, Taiwan", "#"], ["Monstudio", "https://monstudio.me"]] },
             ].map((col) => (
               <div key={col.title} className="space-y-5">
                 <h5 className="text-xs font-bold uppercase tracking-widest text-background/30">{col.title}</h5>
@@ -746,7 +746,7 @@ export default async function HomePage() {
             ))}
           </div>
           <div className="pt-8 border-t border-background/10 flex flex-col md:flex-row justify-between items-center text-background/25 text-xs gap-4">
-            <span>© 2025 UniLink. Developed by Monstudio.</span>
+            <span>© 2025 UniLink. Developed by <a href="https://monstudio.me" target="_blank" rel="noopener noreferrer" className="hover:text-background/60 transition-colors">Monstudio</a>.</span>
             <div className="flex gap-8">
               <span className="text-primary/60">AI Engine v1.0</span>
               <span>UTC+8 Taipei</span>
