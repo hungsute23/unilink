@@ -132,7 +132,17 @@ export async function sendChatMessage(
 
     // 4. Off-topic signal detection
     if (reply.includes("[OFF_TOPIC]"))
-      return { type: "off_topic", suggestions: OFF_TOPIC_SUGGESTIONS };
+      return {
+        type: "off_topic",
+        suggestions: [
+          "Học bổng du học Đài Loan",
+          "Điều kiện nhập học đại học",
+          "Thủ tục xin visa du học",
+          "Việc làm thêm cho sinh viên",
+          "Trình độ TOCFL cần thiết",
+          "Chi phí sinh hoạt tại Đài Loan",
+        ],
+      };
 
     return { type: "answer", reply };
   } catch (error: any) {
