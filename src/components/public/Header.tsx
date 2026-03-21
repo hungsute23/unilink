@@ -4,8 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   GraduationCap, BookOpen, Briefcase, Home, Users,
-  Menu, X, LayoutDashboard, LogOut, ChevronDown,
-  ArrowRight, Sparkles, Globe,
+  Menu, X, LayoutDashboard, LogOut,
+  Sparkles, Globe, User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -232,21 +232,13 @@ export function Header({ user }: HeaderProps) {
                   )}
                 </div>
               ) : (
-                <>
-                  <Link href="/login">
-                    <Button
-                      variant="ghost"
-                      className="h-9 px-4 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/60"
-                    >
-                      Sign in
-                    </Button>
-                  </Link>
-                  <Link href="/register">
-                    <Button className="btn-primary h-9 px-5 text-sm gap-1.5 rounded-full shadow-md hover:shadow-lg transition-shadow">
-                      Get started <ArrowRight size={14} />
-                    </Button>
-                  </Link>
-                </>
+                <Link
+                  href="/login"
+                  className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full border border-border bg-card text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all"
+                >
+                  <User size={15} />
+                  Login
+                </Link>
               )}
             </div>
 
@@ -341,16 +333,11 @@ export function Header({ user }: HeaderProps) {
                   </Button>
                 </>
               ) : (
-                <>
-                  <Link href="/login">
-                    <Button variant="outline" className="w-full rounded-[14px] h-11">Sign in</Button>
-                  </Link>
-                  <Link href="/register">
-                    <Button className="btn-primary w-full rounded-[14px] h-11 gap-2">
-                      Get started free <ArrowRight size={15} />
-                    </Button>
-                  </Link>
-                </>
+                <Link href="/login">
+                  <Button variant="outline" className="w-full rounded-[14px] h-11 gap-2">
+                    <User size={15} /> Login
+                  </Button>
+                </Link>
               )}
             </div>
           </div>
