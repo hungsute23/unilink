@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Header } from "@/components/public/Header";
+import { Footer } from "@/components/public/Footer";
 import { getLoggedInUser } from "@/lib/appwrite/queries/auth.queries";
 
 export const metadata: Metadata = {
@@ -18,7 +19,7 @@ export default async function PublicLayout({
     <>
       <Header user={user} />
       <main>{children}</main>
-      {/* TODO: Add shared PublicFooter here */}
+      <Footer />
     </>
   );
 }
