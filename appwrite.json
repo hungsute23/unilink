@@ -1,0 +1,17 @@
+{
+  "$schema": "https://raw.githubusercontent.com/appwrite/sdk-for-cli/main/json-schema/appwrite.json",
+  "projectId": "69bc19420016b7541051",
+  "projectName": "UniLink",
+  "sites": [
+    {
+      "name": "UniLink",
+      "siteId": "unilink",
+      "framework": "nextjs",
+      "buildRuntime": "node-22",
+      "installCommand": "npm install",
+      "buildCommand": "npm run build",
+      "buildOutputDirectory": ".next",
+      "adapter": "ssr"
+    }
+  ]
+}
