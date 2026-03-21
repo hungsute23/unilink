@@ -492,7 +492,12 @@ export function AIChatWidget() {
               <textarea
                 ref={inputRef}
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  // Ignore bare newline from Enter key (already handled by onKeyDown)
+                  if (val === "\n" || val === "\r\n") return;
+                  setInput(val);
+                }}
                 onKeyDown={handleKeyDown}
                 placeholder="Nhập câu hỏi của bạn..."
                 rows={1}
