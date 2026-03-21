@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Header } from "@/components/public/Header";
 import { Footer } from "@/components/public/Footer";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
+import { AIChatWidget } from "@/components/shared/AIChatWidget";
 import { getLoggedInUser } from "@/lib/appwrite/queries/auth.queries";
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export default async function PublicLayout({
       </div>
       <main>{children}</main>
       <Footer />
+      <AIChatWidget />
     </>
   );
 }
