@@ -113,11 +113,14 @@ export async function sendChatMessage(
       },
     });
 
-    // Build history (max 10 turns)
-    const history = messages.slice(-10).map((m) => ({
-      role: m.role === "assistant" ? "model" : "user",
-      parts: [{ text: m.content }],
-    }));
+    // Build history (max 10 turns, skip empty content)
+    const history = messages
+      .slice(-10)
+      .filter((m) => m.content.trim().length > 0)
+      .map((m) => ({
+        role: m.role === "assistant" ? "model" : "user",
+        parts: [{ text: m.content }],
+      }));
 
     const chat = model.startChat({ history });
     const result = await chat.sendMessage(sanitized);
@@ -141,7 +144,10 @@ export async function sendChatMessage(
 
     return { type: "answer", reply };
   } catch (error: any) {
-    console.error("[sendChatMessage]", error?.message ?? error);
+    const msg = error?.message ?? String(error);
+    console.error("[sendChatMessage] error:", msg);
+    if (msg.includes("API key")) return { type: "error", message: "AI chưa được cấu hình." };
+    if (msg.includes("quota") || msg.includes("429")) return { type: "error", message: "AI đang quá tải, thử lại sau ít phút." };
     return { type: "error", message: "AI không phản hồi được. Vui lòng thử lại." };
   }
 }
