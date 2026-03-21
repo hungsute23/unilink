@@ -62,17 +62,12 @@ function detectSpam(text: string): string | null {
   if (text.length < 2)
     return "Tin nhắn quá ngắn.";
 
-  // >70% ký tự không phải chữ/số/dấu câu thông thường → rác
-  const gibberishRatio = (text.match(/[^\w\sàáảãạăắặẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ.,!?]/gi) ?? []).length / text.length;
-  if (gibberishRatio > 0.7)
-    return "Tin nhắn không hợp lệ.";
-
-  // Lặp ký tự liên tục >15 lần (aaaaaaa...)
-  if (/(.)\1{15,}/.test(text))
+  // Lặp ký tự liên tục >20 lần (aaaaaaa...)
+  if (/(.)\1{20,}/.test(text))
     return "Tin nhắn chứa nội dung lặp không hợp lệ.";
 
-  // Toàn số/ký hiệu, không có chữ
-  if (!/[a-zàáảãạăắặâấầèéẻẽêếềìíỉĩòóỏõôốồùúủũưứừỳýđ]/i.test(text))
+  // Phải có ít nhất 1 ký tự chữ (Latin, tiếng Việt, tiếng Trung/Nhật/Hàn)
+  if (!/[a-zA-Z\u00C0-\u024F\u4E00-\u9FFF\u3040-\u30FF\uAC00-\uD7AF]/.test(text))
     return "Vui lòng nhập câu hỏi bằng chữ.";
 
   return null;
