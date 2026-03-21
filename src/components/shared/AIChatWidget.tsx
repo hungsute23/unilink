@@ -208,6 +208,26 @@ function AuthWall() {
   );
 }
 
+const STORAGE_KEY = "unilink_chat_history";
+const MAX_STORED  = 40; // max messages to persist
+
+function loadMessages(): Message[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [WELCOME];
+    const parsed: Message[] = JSON.parse(raw).map((m: any) => ({ ...m, ts: new Date(m.ts) }));
+    return parsed.length ? parsed : [WELCOME];
+  } catch {
+    return [WELCOME];
+  }
+}
+
+function saveMessages(msgs: Message[]) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(msgs.slice(-MAX_STORED)));
+  } catch {}
+}
+
 // ── Main widget ───────────────────────────────────────────────────────────────
 export function AIChatWidget() {
   const [open, setOpen]           = useState(false);
@@ -219,11 +239,23 @@ export function AIChatWidget() {
   const [rateLimitMsg, setRateLimitMsg] = useState<string | null>(null);
   const [authChecked, setAuthChecked]   = useState(false);
   const [isLoggedIn, setIsLoggedIn]     = useState(false);
+  const [hydrated, setHydrated]         = useState(false);
 
   // Timestamps of sent messages for rate limiting
   const sentTimestamps = useRef<number[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef       = useRef<HTMLTextAreaElement>(null);
+
+  // Load from localStorage on mount (client-only)
+  useEffect(() => {
+    setMessages(loadMessages());
+    setHydrated(true);
+  }, []);
+
+  // Persist messages to localStorage whenever they change
+  useEffect(() => {
+    if (hydrated) saveMessages(messages);
+  }, [messages, hydrated]);
 
   // Check auth once on first open
   useEffect(() => {
@@ -340,6 +372,7 @@ export function AIChatWidget() {
     setInput("");
     setRateLimitMsg(null);
     sentTimestamps.current = [];
+    try { localStorage.removeItem(STORAGE_KEY); } catch {}
   };
 
   return (
