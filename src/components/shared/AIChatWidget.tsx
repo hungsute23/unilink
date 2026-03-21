@@ -42,7 +42,7 @@ const WELCOME: Message = {
   role: "assistant",
   type: "answer",
   content: "Xin chào! Tôi là **UniLink AI**, trợ lý tư vấn du học Đài Loan của bạn. 👋\n\nTôi có thể giúp bạn:\n- Tìm trường & ngành học phù hợp\n- Tư vấn học bổng TOCFL\n- Thông tin visa & thủ tục nhập học\n- Cơ hội việc làm cho sinh viên\n\nBạn muốn bắt đầu từ đâu?",
-  ts: new Date(),
+  ts: new Date(0), // stable timestamp to avoid SSR/client hydration mismatch
 };
 
 const INITIAL_SUGGESTIONS = [
@@ -462,7 +462,7 @@ export function AIChatWidget() {
                     )}>
                       <ChatMarkdown content={msg.content} isUser={msg.role === "user"} />
                     </div>
-                    <span className="text-[10px] text-muted-foreground/60 px-1">{formatTime(msg.ts)}</span>
+                    <span suppressHydrationWarning className="text-[10px] text-muted-foreground/60 px-1">{formatTime(msg.ts)}</span>
                   </div>
                 </div>
               );

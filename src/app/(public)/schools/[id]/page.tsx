@@ -41,7 +41,7 @@ const CITY_COLORS: Record<string, string> = {
   Hsinchu:     "from-violet-500/20 to-purple-500/10 border-violet-200 dark:border-violet-800",
   Tainan:      "from-amber-500/20 to-orange-500/10 border-amber-200 dark:border-amber-800",
   Taichung:    "from-emerald-500/20 to-teal-500/10 border-emerald-200 dark:border-emerald-800",
-  "New Taipei":"from-rose-500/20 to-pink-500/10 border-rose-200 dark:border-rose-800",
+  "New Taipei":"from-slate-500/20 to-slate-400/10 border-slate-200 dark:border-slate-700",
   Kaohsiung:   "from-indigo-500/20 to-blue-500/10 border-indigo-200 dark:border-indigo-800",
 };
 
@@ -367,7 +367,7 @@ export default async function SchoolDetailPage({ params }: Props) {
           <aside className="space-y-5">
 
             {/* Apply CTA */}
-            <div className="ns-card bg-card p-6 space-y-4 sticky top-24">
+            <div className="ns-card bg-card p-6 space-y-4">
               <h3 className="font-bold text-foreground">Interested in this school?</h3>
 
               <div className="space-y-2.5 text-sm">
