@@ -59,7 +59,7 @@ export default async function PendingApprovalPage() {
               Back to Home
             </Button>
           </Link>
-          <form action={logoutUser}>
+          <form action={async () => { "use server"; await logoutUser(); }}>
             <Button type="submit" variant="ghost" className="rounded-2xl h-12 px-8 text-muted-foreground">
               Sign out
             </Button>
